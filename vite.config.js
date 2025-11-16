@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: path.resolve(__dirname, 'index.html'),
         klockan: path.resolve(__dirname, 'games/klockan/index.html'),
+        tetris: path.resolve(__dirname, 'games/tetris/index.html'),
       },
     },
   },
