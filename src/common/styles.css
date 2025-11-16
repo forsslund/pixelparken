@@ -3,30 +3,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap');
 
 :root {
-  /* Color Palette */
-  --primary-blue: #3A78FF;
+  /* Color Palette - Warmer, more inviting tones */
+  --primary-blue: #5B8CFF;
   --playful-yellow: #FFD93A;
-  --soft-green: #74D680;
-  --aqua: #47C5FF;
-  --pink-accent: #FF7DD1;
+  --soft-green: #7FE68C;
+  --aqua: #6DD4FF;
+  --pink-accent: #FF8FDB;
+  --warm-orange: #FFB366;
+  --soft-purple: #B88FFF;
   --neutral-white: #FFFFFF;
-  --neutral-dark: #1A1A1A;
+  --neutral-dark: #2D2D2D;
+  --soft-shadow: rgba(0, 0, 0, 0.12);
 
   /* Typography */
   --font-heading: 'Fredoka One', cursive;
   --font-body: 'Nunito', sans-serif;
 
-  /* Border Radius */
-  --radius-small: 12px;
-  --radius-medium: 16px;
-  --radius-large: 20px;
+  /* Border Radius - Much rounder for softer, friendlier feel */
+  --radius-small: 16px;
+  --radius-medium: 24px;
+  --radius-large: 32px;
+  --radius-xl: 40px;
 
-  /* Spacing */
-  --space-xs: 8px;
-  --space-sm: 16px;
-  --space-md: 24px;
-  --space-lg: 32px;
-  --space-xl: 48px;
+  /* Spacing - More breathing room */
+  --space-xs: 12px;
+  --space-sm: 20px;
+  --space-md: 32px;
+  --space-lg: 48px;
+  --space-xl: 64px;
+  --space-2xl: 80px;
 }
 
 * {
@@ -37,16 +42,24 @@
 
 body {
   font-family: var(--font-body);
-  background: linear-gradient(135deg, var(--aqua) 0%, var(--primary-blue) 100%);
+  background: linear-gradient(135deg, #FFE8B3 0%, #FFD1A3 25%, #FFC7E3 50%, #D4B3FF 75%, #B3D4FF 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
   color: var(--neutral-dark);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 h1, h2, h3 {
   font-family: var(--font-heading);
   color: var(--neutral-white);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.5px;
 }
 
 button {
@@ -55,26 +68,47 @@ button {
   cursor: pointer;
   border: none;
   outline: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  position: relative;
 }
 
 button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 button:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(1.02);
+  transition: all 0.1s ease;
 }
 
 .btn-primary {
-  background: var(--primary-blue);
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--soft-purple) 100%);
   color: var(--neutral-white);
-  padding: 16px 32px;
-  font-size: 18px;
-  border-radius: var(--radius-medium);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-width: 140px;
+  padding: 18px 36px;
+  font-size: 20px;
+  border-radius: var(--radius-large);
+  box-shadow: 0 6px 16px var(--soft-shadow),
+              0 2px 4px rgba(0, 0, 0, 0.1);
+  min-width: 160px;
+  font-weight: 800;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: var(--radius-large);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-primary:hover::before {
+  opacity: 1;
 }
 
 .btn-secondary {
@@ -82,10 +116,11 @@ button:active {
   color: var(--primary-blue);
   padding: 16px 32px;
   font-size: 18px;
-  border-radius: var(--radius-medium);
-  border: 3px solid var(--primary-blue);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius-large);
+  border: 4px solid var(--primary-blue);
+  box-shadow: 0 4px 12px var(--soft-shadow);
   min-width: 140px;
+  font-weight: 700;
 }
 
 .container {
