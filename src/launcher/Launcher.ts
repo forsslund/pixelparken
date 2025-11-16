@@ -16,6 +16,14 @@ export class Launcher {
         icon: '🕐',
         path: './games/klockan/index.html',
       },
+      {
+        id: 'chess',
+        name: 'Schack',
+        description: 'Träna på att sätta matt med kung och torn!',
+        category: 'educational',
+        icon: '♟️',
+        path: './games/chess/index.html',
+      },
       // More games will be added here in future versions
       // {
       //   id: 'tetris',
