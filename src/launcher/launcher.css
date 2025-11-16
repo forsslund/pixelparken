@@ -134,6 +134,309 @@
   }
 }
 
+/* Currency Display */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.currency-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
+}
+
+.currency-amount {
+  font-size: 1.8rem;
+  color: var(--playful-yellow);
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.multiplier-display {
+  font-size: 1rem;
+  color: var(--neutral-white);
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+/* Shop Section */
+.shop-section {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto var(--space-xl);
+  padding: 0 var(--space-md);
+}
+
+.shop-section h2 {
+  font-size: 2rem;
+  margin-bottom: var(--space-md);
+  text-align: center;
+  color: var(--neutral-white);
+}
+
+.shop-tabs {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.tab-button {
+  padding: 12px 32px;
+  font-size: 1.1rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--neutral-white);
+  border: 2px solid var(--neutral-white);
+  border-radius: var(--radius-medium);
+  transition: all 0.3s;
+}
+
+.tab-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.tab-button.active {
+  background: var(--neutral-white);
+  color: var(--primary-blue);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Shop Grid */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-lg);
+}
+
+.shop-item {
+  background: var(--neutral-white);
+  border-radius: var(--radius-large);
+  padding: var(--space-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.shop-item.affordable {
+  border: 3px solid var(--playful-yellow);
+  box-shadow: 0 0 20px rgba(255, 217, 58, 0.4);
+}
+
+.shop-item.owned {
+  opacity: 0.7;
+}
+
+.shop-item-icon {
+  font-size: 5rem;
+  margin-bottom: var(--space-md);
+}
+
+.shop-item h3 {
+  font-size: 1.5rem;
+  color: var(--primary-blue);
+  margin-bottom: var(--space-sm);
+}
+
+.shop-item-description {
+  font-size: 0.9rem;
+  color: var(--neutral-dark);
+  margin-bottom: var(--space-md);
+  opacity: 0.8;
+}
+
+.shop-item-price {
+  font-size: 1.8rem;
+  color: var(--playful-yellow);
+  font-weight: 700;
+  margin-bottom: var(--space-xs);
+}
+
+.shop-item-multiplier {
+  font-size: 1rem;
+  color: var(--soft-green);
+  font-weight: 600;
+  margin-bottom: var(--space-md);
+}
+
+.shop-buy-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.owned-badge {
+  font-size: 1.2rem;
+  color: var(--soft-green);
+  font-weight: 700;
+  padding: 8px 16px;
+  background: rgba(116, 214, 128, 0.2);
+  border-radius: var(--radius-small);
+}
+
+/* Garage */
+.garage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+}
+
+.garage-item {
+  background: var(--neutral-white);
+  border-radius: var(--radius-large);
+  padding: var(--space-lg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.garage-item-icon {
+  font-size: 4rem;
+  margin-bottom: var(--space-md);
+}
+
+.garage-item h3 {
+  font-size: 1.2rem;
+  color: var(--primary-blue);
+  margin-bottom: var(--space-sm);
+}
+
+.garage-item-multiplier {
+  font-size: 1rem;
+  color: var(--soft-green);
+  font-weight: 700;
+}
+
+.empty-garage {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--space-xl);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-large);
+}
+
+.empty-message {
+  font-size: 2rem;
+  color: var(--neutral-white);
+  margin-bottom: var(--space-md);
+}
+
+.empty-hint {
+  font-size: 1.1rem;
+  color: var(--neutral-white);
+  opacity: 0.8;
+}
+
+.collection-progress {
+  grid-column: 1 / -1;
+  background: var(--neutral-white);
+  border-radius: var(--radius-large);
+  padding: var(--space-md);
+  text-align: center;
+}
+
+.collection-progress p {
+  font-size: 1.2rem;
+  color: var(--primary-blue);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background: rgba(58, 120, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-blue), var(--aqua));
+  transition: width 0.5s ease;
+}
+
+/* Purchase Success Popup */
+.purchase-success-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s;
+}
+
+.purchase-success-content {
+  background: var(--neutral-white);
+  border-radius: var(--radius-large);
+  padding: var(--space-xl);
+  text-align: center;
+  max-width: 400px;
+  animation: scaleIn 0.5s ease;
+}
+
+.success-icon {
+  font-size: 5rem;
+  margin-bottom: var(--space-md);
+}
+
+.purchase-success-content h2 {
+  font-size: 2rem;
+  color: var(--primary-blue);
+  margin-bottom: var(--space-sm);
+  text-shadow: none;
+}
+
+.purchase-success-content p {
+  font-size: 1.2rem;
+  color: var(--neutral-dark);
+}
+
+.fade-out {
+  animation: fadeOut 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .launcher-header h1 {
@@ -142,6 +445,15 @@
 
   .launcher-header .subtitle {
     font-size: 1.2rem;
+  }
+
+  .header-top {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .currency-display {
+    align-items: center;
   }
 
   .games-section h2 {
@@ -155,5 +467,18 @@
 
   .game-icon {
     font-size: 4rem;
+  }
+
+  .shop-grid, .garage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .shop-tabs {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .tab-button {
+    width: 100%;
   }
 }

@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { saveScore, getHighScore } from '../../common/utils';
+import { addCurrency, formatCurrency } from '../../common/currency';
+import { getTotalMultiplier, getClockVisualEffect } from '../../common/shop';
 
 interface TimeOption {
   hours: number;
@@ -11,14 +13,19 @@ export class ClockGame extends Phaser.Scene {
   private clockCenterX!: number;
   private clockCenterY!: number;
   private clockRadius!: number;
+  private clockFace!: Phaser.GameObjects.Arc;
+  private clockGlow?: Phaser.GameObjects.Arc;
   private hourHand!: Phaser.GameObjects.Line;
   private minuteHand!: Phaser.GameObjects.Line;
   private currentHours!: number;
   private currentMinutes!: number;
   private score: number = 0;
   private correctAnswers: number = 0;
+  private totalEarnings: number = 0;
+  private currentMultiplier: number = 10;
   private optionButtons: Phaser.GameObjects.Container[] = [];
   private feedbackText!: Phaser.GameObjects.Text;
+  private earningsText!: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'ClockGame' });
@@ -27,6 +34,10 @@ export class ClockGame extends Phaser.Scene {
   create(): void {
     this.score = 0;
     this.correctAnswers = 0;
+    this.totalEarnings = 0;
+
+    // Get current multiplier from shop
+    this.currentMultiplier = getTotalMultiplier();
 
     // Set clock dimensions
     this.clockCenterX = 400;
@@ -40,8 +51,23 @@ export class ClockGame extends Phaser.Scene {
       fontFamily: 'Fredoka One',
     }).setOrigin(0.5);
 
-    // Draw the clock
+    // Add earnings and multiplier display
+    this.earningsText = this.add.text(400, 70, `Tjänat: ${formatCurrency(0)}`, {
+      fontSize: '20px',
+      color: '#74D680',
+      fontFamily: 'Nunito',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
+
+    this.add.text(400, 95, `⚡ ${formatCurrency(this.currentMultiplier)} per rätt svar`, {
+      fontSize: '16px',
+      color: '#3A78FF',
+      fontFamily: 'Nunito',
+    }).setOrigin(0.5);
+
+    // Draw the clock with visual effects
     this.drawClock();
+    this.applyClockVisuals();
 
     // Display high score
     const highScore = getHighScore('klockan');
@@ -67,13 +93,13 @@ export class ClockGame extends Phaser.Scene {
 
   private drawClock(): void {
     // Clock face
-    const clockFace = this.add.circle(
+    this.clockFace = this.add.circle(
       this.clockCenterX,
       this.clockCenterY,
       this.clockRadius,
       0xFFFFFF
     );
-    clockFace.setStrokeStyle(6, 0x1A1A1A);
+    this.clockFace.setStrokeStyle(6, 0x1A1A1A);
 
     // Clock center dot
     this.add.circle(this.clockCenterX, this.clockCenterY, 8, 0x1A1A1A);
@@ -225,6 +251,17 @@ export class ClockGame extends Phaser.Scene {
       // Correct answer
       this.correctAnswers++;
       this.score += 10;
+
+      // Add currency to total
+      this.totalEarnings += this.currentMultiplier;
+      addCurrency(this.currentMultiplier);
+
+      // Update earnings display
+      this.earningsText.setText(`Tjänat: ${formatCurrency(this.totalEarnings)}`);
+
+      // Show floating earnings animation
+      this.showEarningsAnimation(button.x, button.y);
+
       this.updateScoreDisplay();
 
       // Visual feedback
@@ -332,5 +369,119 @@ export class ClockGame extends Phaser.Scene {
     if (window.updateScore) {
       window.updateScore(this.score);
     }
+  }
+
+  private applyClockVisuals(): void {
+    const visualEffect = getClockVisualEffect();
+
+    switch (visualEffect) {
+      case 'gold-clock':
+        // Golden clock
+        this.clockFace.setFillStyle(0xFFD700);
+        this.clockFace.setStrokeStyle(8, 0xDAA520);
+
+        // Add glow effect
+        this.clockGlow = this.add.circle(
+          this.clockCenterX,
+          this.clockCenterY,
+          this.clockRadius + 10,
+          0xFFD700,
+          0.3
+        );
+        this.clockGlow.setDepth(-1);
+
+        // Animate glow
+        this.tweens.add({
+          targets: this.clockGlow,
+          alpha: 0.5,
+          duration: 1000,
+          yoyo: true,
+          repeat: -1,
+        });
+
+        // Golden hands
+        this.hourHand.setStrokeStyle(8, 0xDAA520);
+        this.minuteHand.setStrokeStyle(6, 0xFFD700);
+        break;
+
+      case 'lamborghini':
+        // Keep gold but add red accents
+        this.clockFace.setFillStyle(0xFFD700);
+        this.clockFace.setStrokeStyle(8, 0xFF0000);
+
+        if (this.clockGlow) {
+          this.clockGlow.setFillStyle(0xFF0000, 0.3);
+        }
+
+        this.hourHand.setStrokeStyle(8, 0xFF0000);
+        this.minuteHand.setStrokeStyle(6, 0xFFD700);
+        break;
+
+      case 'iron':
+        // Silver/iron metallic
+        this.clockFace.setFillStyle(0xC0C0C0);
+        this.clockFace.setStrokeStyle(8, 0x808080);
+
+        if (this.clockGlow) {
+          this.clockGlow.setFillStyle(0xE8E8E8, 0.4);
+        }
+
+        this.hourHand.setStrokeStyle(8, 0x696969);
+        this.minuteHand.setStrokeStyle(6, 0xA9A9A9);
+        break;
+
+      case 'galaxy':
+        // Purple/blue galaxy theme
+        this.clockFace.setFillStyle(0x764ba2);
+        this.clockFace.setStrokeStyle(8, 0x667eea);
+
+        if (this.clockGlow) {
+          this.clockGlow.setFillStyle(0xf093fb, 0.5);
+
+          // Extra glow animation
+          this.tweens.add({
+            targets: this.clockGlow,
+            scaleX: 1.1,
+            scaleY: 1.1,
+            alpha: 0.7,
+            duration: 2000,
+            yoyo: true,
+            repeat: -1,
+          });
+        }
+
+        this.hourHand.setStrokeStyle(8, 0xf093fb);
+        this.minuteHand.setStrokeStyle(6, 0x667eea);
+        break;
+
+      default:
+        // Default white clock
+        this.clockFace.setFillStyle(0xFFFFFF);
+        this.clockFace.setStrokeStyle(6, 0x1A1A1A);
+        break;
+    }
+  }
+
+  private showEarningsAnimation(x: number, y: number): void {
+    const text = this.add.text(x, y, `+${formatCurrency(this.currentMultiplier)}`, {
+      fontSize: '32px',
+      color: '#FFD700',
+      fontFamily: 'Nunito',
+      fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setOrigin(0.5);
+
+    // Floating animation
+    this.tweens.add({
+      targets: text,
+      y: y - 100,
+      alpha: 0,
+      duration: 1500,
+      ease: 'Power2',
+      onComplete: () => {
+        text.destroy();
+      },
+    });
   }
 }
