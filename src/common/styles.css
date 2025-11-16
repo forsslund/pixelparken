@@ -1,0 +1,107 @@
+/* Pixelparken Global Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap');
+
+:root {
+  /* Color Palette */
+  --primary-blue: #3A78FF;
+  --playful-yellow: #FFD93A;
+  --soft-green: #74D680;
+  --aqua: #47C5FF;
+  --pink-accent: #FF7DD1;
+  --neutral-white: #FFFFFF;
+  --neutral-dark: #1A1A1A;
+
+  /* Typography */
+  --font-heading: 'Fredoka One', cursive;
+  --font-body: 'Nunito', sans-serif;
+
+  /* Border Radius */
+  --radius-small: 12px;
+  --radius-medium: 16px;
+  --radius-large: 20px;
+
+  /* Spacing */
+  --space-xs: 8px;
+  --space-sm: 16px;
+  --space-md: 24px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background: linear-gradient(135deg, var(--aqua) 0%, var(--primary-blue) 100%);
+  color: var(--neutral-dark);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-heading);
+  color: var(--neutral-white);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button {
+  font-family: var(--font-body);
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: var(--neutral-white);
+  padding: 16px 32px;
+  font-size: 18px;
+  border-radius: var(--radius-medium);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 140px;
+}
+
+.btn-secondary {
+  background: var(--neutral-white);
+  color: var(--primary-blue);
+  padding: 16px 32px;
+  font-size: 18px;
+  border-radius: var(--radius-medium);
+  border: 3px solid var(--primary-blue);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 140px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-md);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-sm);
+  }
+
+  .btn-primary, .btn-secondary {
+    padding: 14px 24px;
+    font-size: 16px;
+  }
+}
