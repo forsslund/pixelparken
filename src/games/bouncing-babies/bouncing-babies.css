@@ -1,0 +1,103 @@
+/* Bouncing Babies game specific styles */
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FF6B6B 0%, #FFD93A 100%);
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(135deg, var(--error-red) 0%, var(--playful-yellow) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 10;
+}
+
+.game-header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--neutral-white);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  flex-grow: 1;
+  text-align: center;
+}
+
+.back-button {
+  font-size: 16px;
+  padding: 10px 20px;
+  min-width: auto;
+}
+
+.score-display {
+  min-width: 120px;
+  text-align: right;
+  font-size: 1.2rem;
+  color: var(--neutral-white);
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+.score-display strong {
+  color: var(--neutral-white);
+  font-size: 1.4rem;
+}
+
+#game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px);
+}
+
+#game-container canvas {
+  display: block;
+  margin: 0 auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-medium);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .game-header {
+    flex-wrap: wrap;
+    padding: var(--space-xs);
+  }
+
+  .game-header h1 {
+    font-size: 1.4rem;
+    order: 1;
+    width: 100%;
+    margin-bottom: var(--space-xs);
+  }
+
+  .back-button {
+    order: 2;
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .score-display {
+    order: 3;
+    font-size: 1rem;
+  }
+
+  .score-display strong {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .back-button {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

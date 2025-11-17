@@ -24,6 +24,14 @@ export class Launcher {
         icon: '🎮',
         path: './games/tetris/index.html',
       },
+      {
+        id: 'bouncing-babies',
+        name: 'Bouncing Babies',
+        description: 'Rädda bebisarna från det brinnande huset!',
+        category: 'fun',
+        icon: '👶',
+        path: './games/bouncing-babies/index.html',
+      },
       // More games will be added here in future versions
       // {
       //   id: 'memory',
