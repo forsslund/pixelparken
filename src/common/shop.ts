@@ -12,7 +12,7 @@ export interface ShopItem {
   multiplier: number;
   icon: string;
   description: string;
-  visualEffect: 'gold-clock' | 'lamborghini' | 'iron' | 'galaxy';
+  visualEffect: 'gold-clock' | 'common-car' | 'lamborghini' | 'iron' | 'galaxy';
 }
 
 /**
@@ -27,6 +27,15 @@ export const SHOP_ITEMS: ShopItem[] = [
     icon: '🏆',
     description: 'Din första upgrade! Klockan blir gyllene.',
     visualEffect: 'gold-clock',
+  },
+  {
+    id: 'common-car',
+    name: 'Common Car',
+    price: 100_000,
+    multiplier: 10_000,
+    icon: '🚗',
+    description: 'En vanlig bil som ökar dina intäkter!',
+    visualEffect: 'common-car',
   },
   {
     id: 'lamborghini',
@@ -126,19 +135,21 @@ export function purchaseItem(itemId: string): boolean {
 
 /**
  * Get the total multiplier from all purchased items
+ * Uses the HIGHEST multiplier, not stacking
  */
 export function getTotalMultiplier(): number {
   const purchased = getPurchasedItems();
-  let multiplier = 10; // Base: 10 kr per correct answer
+  let bestMultiplier = 1; // Base multiplier (no items)
 
+  // Find the highest multiplier among purchased items
   for (const itemId of purchased) {
     const item = SHOP_ITEMS.find(i => i.id === itemId);
-    if (item) {
-      multiplier *= item.multiplier;
+    if (item && item.multiplier > bestMultiplier) {
+      bestMultiplier = item.multiplier;
     }
   }
 
-  return multiplier;
+  return 10 * bestMultiplier; // Base 10 kr × best multiplier
 }
 
 /**
@@ -159,7 +170,7 @@ export function getNextItem(): ShopItem | null {
 /**
  * Get visual effect for the clock based on purchased items
  */
-export function getClockVisualEffect(): 'gold-clock' | 'lamborghini' | 'iron' | 'galaxy' | 'default' {
+export function getClockVisualEffect(): 'gold-clock' | 'common-car' | 'lamborghini' | 'iron' | 'galaxy' | 'default' {
   const purchased = getPurchasedItems();
 
   // Return the highest tier visual effect
@@ -171,6 +182,9 @@ export function getClockVisualEffect(): 'gold-clock' | 'lamborghini' | 'iron' | 
   }
   if (purchased.includes('lamborghini')) {
     return 'lamborghini';
+  }
+  if (purchased.includes('common-car')) {
+    return 'common-car';
   }
   if (purchased.includes('gold-clock')) {
     return 'gold-clock';

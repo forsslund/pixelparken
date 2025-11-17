@@ -409,6 +409,34 @@ export class ClockGame extends Phaser.Scene {
         this.minuteHand.setStrokeStyle(6, 0x1A1A1A); // Black for contrast
         break;
 
+      case 'common-car':
+        // Silver/blue common car theme
+        this.clockFace.setFillStyle(0xE0E0E0);
+        this.clockFace.setStrokeStyle(8, 0x4A90E2);
+
+        // Add subtle glow effect
+        this.clockGlow = this.add.circle(
+          this.clockCenterX,
+          this.clockCenterY,
+          this.clockRadius + 10,
+          0x4A90E2,
+          0.2
+        );
+        this.clockGlow.setDepth(-1);
+
+        // Animate glow
+        this.tweens.add({
+          targets: this.clockGlow,
+          alpha: 0.4,
+          duration: 1500,
+          yoyo: true,
+          repeat: -1,
+        });
+
+        this.hourHand.setStrokeStyle(8, 0x2C3E50);
+        this.minuteHand.setStrokeStyle(6, 0x4A90E2);
+        break;
+
       case 'lamborghini':
         // Keep gold but add red accents
         this.clockFace.setFillStyle(0xFFD700);
