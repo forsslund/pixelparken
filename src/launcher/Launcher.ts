@@ -16,15 +16,15 @@ export class Launcher {
         icon: '🕐',
         path: './games/klockan/index.html',
       },
+      {
+        id: 'tetris',
+        name: 'Tetris',
+        description: 'Stapla blocken och rensa rader!',
+        category: 'fun',
+        icon: '🎮',
+        path: './games/tetris/index.html',
+      },
       // More games will be added here in future versions
-      // {
-      //   id: 'tetris',
-      //   name: 'Tetris',
-      //   description: 'Stapla blocken och rensa rader!',
-      //   category: 'fun',
-      //   icon: '🎮',
-      //   path: './games/tetris/index.html',
-      // },
       // {
       //   id: 'memory',
       //   name: 'Memory',
