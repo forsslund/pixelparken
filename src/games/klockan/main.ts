@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <button class="btn-secondary back-button" id="back-btn">← Tillbaka</button>
     <h1>🕐 Lär dig klockan</h1>
     <div class="score-display">
-      <span>Poäng: <strong id="score">0</strong></span>
+      <span>kr: <strong id="score">0</strong></span>
     </div>
   `;
 
@@ -47,14 +47,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // Extend Window interface for game functions
 declare global {
   interface Window {
-    updateScore?: (score: number) => void;
+    updateCurrency?: (currency: number) => void;
   }
 }
 
-// Export score update function for use in the game
-window.updateScore = (score: number) => {
+// Export currency update function for use in the game
+window.updateCurrency = (currency: number) => {
   const scoreElement = document.getElementById('score');
   if (scoreElement) {
-    scoreElement.textContent = score.toString();
+    // Format large numbers with k, m, b suffixes
+    const formatted = currency >= 1000
+      ? (currency >= 1e9 ? `${(currency / 1e9).toFixed(1)}b`
+        : currency >= 1e6 ? `${(currency / 1e6).toFixed(1)}m`
+        : `${(currency / 1000).toFixed(1)}k`)
+      : currency.toString();
+    scoreElement.textContent = formatted;
   }
 };

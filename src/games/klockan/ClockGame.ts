@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { saveScore, getHighScore } from '../../common/utils';
-import { addCurrency, formatCurrency } from '../../common/currency';
+import { addCurrency, formatCurrency, getTotalCurrency } from '../../common/currency';
 import { getTotalMultiplier, getClockVisualEffect } from '../../common/shop';
 
 interface TimeOption {
@@ -54,9 +54,11 @@ export class ClockGame extends Phaser.Scene {
     // Add earnings and multiplier display
     this.earningsText = this.add.text(400, 70, `Tjänat: ${formatCurrency(0)}`, {
       fontSize: '20px',
-      color: '#74D680',
+      color: '#FFD700',
       fontFamily: 'Nunito',
       fontStyle: 'bold',
+      stroke: '#000000',
+      strokeThickness: 3,
     }).setOrigin(0.5);
 
     this.add.text(400, 95, `⚡ ${formatCurrency(this.currentMultiplier)} per rätt svar`, {
@@ -86,6 +88,9 @@ export class ClockGame extends Phaser.Scene {
       fontFamily: 'Nunito',
       fontStyle: 'bold',
     }).setOrigin(0.5);
+
+    // Initialize top-right currency display
+    this.updateScoreDisplay();
 
     // Generate a new time question (must be after feedbackText initialization)
     this.generateNewQuestion();
@@ -366,8 +371,8 @@ export class ClockGame extends Phaser.Scene {
   }
 
   private updateScoreDisplay(): void {
-    if (window.updateScore) {
-      window.updateScore(this.score);
+    if (window.updateCurrency) {
+      window.updateCurrency(getTotalCurrency());
     }
   }
 
@@ -399,9 +404,9 @@ export class ClockGame extends Phaser.Scene {
           repeat: -1,
         });
 
-        // Golden hands
-        this.hourHand.setStrokeStyle(8, 0xDAA520);
-        this.minuteHand.setStrokeStyle(6, 0xFFD700);
+        // Golden hands - dark hour hand, bright minute hand for visibility
+        this.hourHand.setStrokeStyle(8, 0x8B4513); // Dark brown/bronze
+        this.minuteHand.setStrokeStyle(6, 0x1A1A1A); // Black for contrast
         break;
 
       case 'lamborghini':

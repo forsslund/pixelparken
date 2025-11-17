@@ -17,6 +17,7 @@ export class LauncherView {
     this.container = document.getElementById('app');
     this.render();
     this.setupShopEventListeners();
+    this.setupResetButton();
   }
 
   private render(): void {
@@ -71,6 +72,7 @@ export class LauncherView {
 
         <footer class="launcher-footer">
           <p>Pixelparken v0.1 - Reklamfritt och roligt!</p>
+          <button class="btn-reset" id="reset-button">🔄 Nollställ allt (test)</button>
         </footer>
       </div>
     `;
@@ -259,5 +261,18 @@ export class LauncherView {
       popup.classList.add('fade-out');
       setTimeout(() => popup.remove(), 500);
     }, 2000);
+  }
+
+  private setupResetButton(): void {
+    const resetButton = document.getElementById('reset-button');
+    if (!resetButton) return;
+
+    resetButton.addEventListener('click', () => {
+      const confirmed = confirm('Är du säker? Detta raderar all progress (pengar, items, highscores).');
+      if (confirmed) {
+        localStorage.clear();
+        window.location.reload();
+      }
+    });
   }
 }

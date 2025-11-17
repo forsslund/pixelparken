@@ -111,6 +111,24 @@
   opacity: 0.8;
 }
 
+.btn-reset {
+  margin-top: var(--space-md);
+  padding: 8px 20px;
+  font-size: 0.9rem;
+  background: rgba(255, 125, 209, 0.8);
+  color: var(--neutral-white);
+  border: 2px solid var(--neutral-white);
+  border-radius: var(--radius-medium);
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.btn-reset:hover {
+  background: var(--playful-pink);
+  transform: scale(1.05);
+}
+
 /* Animations */
 @keyframes fadeInDown {
   from {
