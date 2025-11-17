@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
+    "build:check": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -14,7 +15,12 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "type-check": "tsc --noEmit",
-    "validate": "npm run type-check && npm run lint && npm run test"
+    "validate": "npm run type-check && npm run lint && npm run test",
+    "backend:install": "cd backend && npm install",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:build": "cd backend && npm run build",
+    "deploy": "./build-and-deploy.sh",
+    "setup": "npm install && npm run backend:install"
   },
   "dependencies": {
     "phaser": "^3.85.2"

@@ -2,8 +2,12 @@ import { Launcher } from './Launcher';
 import { createGameCard } from '../common/ui';
 import { getTotalCurrency, formatCurrency } from '../common/currency';
 import { SHOP_ITEMS, getPurchasedItems, purchaseItem, canAfford, getTotalMultiplier } from '../common/shop';
+import { userStore } from '../common/userStore';
+import { UserRegistration } from './components/UserRegistration';
+import { Guestbook } from './components/Guestbook';
 import '../common/styles.css';
 import './launcher.css';
+import './components/components.css';
 
 /**
  * LauncherView - renders the game selection UI
@@ -15,12 +19,33 @@ export class LauncherView {
   constructor() {
     this.launcher = new Launcher();
     this.container = document.getElementById('app');
-    this.render();
-    this.setupShopEventListeners();
-    this.setupResetButton();
+    this.init();
   }
 
-  private render(): void {
+  private async init(): Promise<void> {
+    // Check if user needs to register
+    if (!userStore.isLoggedIn()) {
+      this.showRegistration();
+    } else {
+      await this.render();
+      this.setupShopEventListeners();
+      this.setupResetButton();
+    }
+  }
+
+  private showRegistration(): void {
+    if (!this.container) return;
+
+    const registration = new UserRegistration(this.container, async () => {
+      await this.render();
+      this.setupShopEventListeners();
+      this.setupResetButton();
+    });
+
+    registration.render();
+  }
+
+  private async render(): Promise<void> {
     if (!this.container) {
       console.error('App container not found');
       return;
@@ -28,12 +53,17 @@ export class LauncherView {
 
     const currency = getTotalCurrency();
     const multiplier = getTotalMultiplier();
+    const user = userStore.getUser();
 
     this.container.innerHTML = `
       <div class="launcher-container">
         <header class="launcher-header">
           <div class="header-top">
             <h1>🎨 Pixelparken</h1>
+            <div class="user-info">
+              <span class="user-avatar">${user?.avatar || '👤'}</span>
+              <span class="username">${user?.username || 'Gäst'}</span>
+            </div>
             <div class="currency-display">
               <div class="currency-amount">💰 <span id="currency-value">${formatCurrency(currency)}</span></div>
               <div class="multiplier-display">⚡ ${formatCurrency(multiplier)}/svar</div>
@@ -70,6 +100,9 @@ export class LauncherView {
           <p class="coming-soon">Fler spel kommer snart!</p>
         </section>
 
+        <section class="guestbook-section" id="guestbook-section">
+        </section>
+
         <footer class="launcher-footer">
           <p>Pixelparken v0.1 - Reklamfritt och roligt!</p>
           <button class="btn-reset" id="reset-button">🔄 Nollställ allt (test)</button>
@@ -80,6 +113,15 @@ export class LauncherView {
     this.renderGames();
     this.renderShop();
     this.renderGarage();
+    await this.renderGuestbook();
+  }
+
+  private async renderGuestbook(): Promise<void> {
+    const guestbookSection = document.getElementById('guestbook-section');
+    if (!guestbookSection) return;
+
+    const guestbook = new Guestbook(guestbookSection);
+    await guestbook.render();
   }
 
   private renderGames(): void {

@@ -1,0 +1,40 @@
+# This file specifies files that are *not* uploaded to Google Cloud
+# using gcloud. It follows the same syntax as .gitignore
+
+.gcloudignore
+.git
+.gitignore
+
+# Node.js dependencies
+node_modules/
+
+# TypeScript source files (we only need the built JavaScript)
+src/
+
+# Development files
+tsconfig.json
+*.ts
+!*.d.ts
+
+# Environment files
+.env
+.env.*
+
+# Tests
+__tests__/
+*.test.ts
+*.spec.ts
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts that aren't needed
+*.map
