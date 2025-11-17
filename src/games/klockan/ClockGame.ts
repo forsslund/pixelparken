@@ -26,6 +26,7 @@ export class ClockGame extends Phaser.Scene {
   private optionButtons: Phaser.GameObjects.Container[] = [];
   private feedbackText!: Phaser.GameObjects.Text;
   private earningsText!: Phaser.GameObjects.Text;
+  private numberTexts: Phaser.GameObjects.Text[] = [];
 
   constructor() {
     super({ key: 'ClockGame' });
@@ -115,11 +116,14 @@ export class ClockGame extends Phaser.Scene {
       const x = this.clockCenterX + Math.cos(angle) * (this.clockRadius - 20);
       const y = this.clockCenterY + Math.sin(angle) * (this.clockRadius - 20);
 
-      this.add.text(x, y, i.toString(), {
+      const numberText = this.add.text(x, y, i.toString(), {
         fontSize: '24px',
         color: '#1A1A1A',
         fontFamily: 'Fredoka One',
       }).setOrigin(0.5);
+
+      // Store reference for later color changes
+      this.numberTexts.push(numberText);
     }
 
     // Initialize clock hands (will be updated with actual time)
@@ -379,6 +383,11 @@ export class ClockGame extends Phaser.Scene {
   private applyClockVisuals(): void {
     const visualEffect = getClockVisualEffect();
 
+    // Reset number colors to default black
+    this.numberTexts.forEach(text => {
+      text.setColor('#1A1A1A');
+    });
+
     switch (visualEffect) {
       case 'gold-clock':
         // Golden clock
@@ -495,6 +504,11 @@ export class ClockGame extends Phaser.Scene {
         // Bright hands for maximum visibility on dark background
         this.hourHand.setStrokeStyle(8, 0xFFFFFF); // White
         this.minuteHand.setStrokeStyle(6, 0xC77DFF); // Light purple
+
+        // Purple numbers for the black hole theme
+        this.numberTexts.forEach(text => {
+          text.setColor('#C77DFF'); // Light purple
+        });
         break;
 
       case 'galaxy':
