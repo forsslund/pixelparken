@@ -24,6 +24,14 @@ export class Launcher {
         icon: '🎮',
         path: './games/tetris/index.html',
       },
+      {
+        id: 'brainrot-lemmings',
+        name: 'Brainrot Lemmings',
+        description: 'Rädda brainrot-gubbarna genom att tilldela förmågor!',
+        category: 'fun',
+        icon: '🧠',
+        path: './games/brainrot-lemmings/index.html',
+      },
       // More games will be added here in future versions
       // {
       //   id: 'memory',

@@ -11,6 +11,7 @@ export default defineConfig({
         main: path.resolve(__dirname, 'index.html'),
         klockan: path.resolve(__dirname, 'games/klockan/index.html'),
         tetris: path.resolve(__dirname, 'games/tetris/index.html'),
+        brainrotLemmings: path.resolve(__dirname, 'games/brainrot-lemmings/index.html'),
       },
     },
   },
