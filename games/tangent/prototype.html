@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+<style>
+    * {
+        font-family: "Arial", "Helvetica", sans-serif;
+    }
+
+    .highlight {
+        font-family: "Consolas", "Menlo", "Courier", monospace;
+        background-color: lightgrey;
+    }
+    #task {
+        font-family: "Consolas", "Menlo", "Courier", monospace;
+        font-size: 25px;
+    }
+</style>
+
+<h1>Tangent.exe 2015</h1>
+
+<div>Lektion: <span id="lecture_no">1</span> Övning: <span id="task_no">1</span></div><br/><br/>
+
+<div id="task"></div><br/>
+<div id="my_key"></div><br/>
+
+<script src="texter.js"></script>
+<script>
+    var currentLesson = 1;
+    var currentTask = 1;
+    var task_line='';
+    var task_key_n = 0;
+    task_line = lesson[currentLesson][currentTask];
+
+
+    function mark(line, char_index){
+        var html = "";
+        for(var i=0;i<line.length;i++){
+            if(char_index==i)
+                html+='<span class="highlight">'+line[i]+'</span>';
+            else
+                html+=line[i];
+        }
+        return html;
+    }
+
+    function refresh(){
+        document.getElementById('task').innerHTML = mark(task_line,task_key_n);
+        document.getElementById('lecture_no').innerHTML = currentLesson.toString() + '/' + (lesson.length+1).toString();
+        document.getElementById('task_no').innerHTML = currentTask.toString() + '/' + (lesson[currentLesson].length+1).toString();
+    }
+
+
+
+    document.addEventListener('keypress', function(event) {
+        var char = event.which || event.keyCode;
+        var str = String.fromCharCode(char);
+        //document.getElementById('my_key').innerHTML = str + (str==task_line[task_key_n]? ' Hurra': ' Nehe');
+
+        if(str==task_line[task_key_n]){
+            task_key_n++;
+            if(task_key_n==task_line.length){
+                task_key_n = 0;
+
+                currentTask++;
+                if(currentTask>=lesson[currentLesson].length){
+                    currentTask=1;
+                    currentLesson++;
+                }
+
+                if(currentLesson>=lesson.length){
+                    task_line = 'Grattis! Nu är du klar';
+                } else {
+                    task_line = lesson[currentLesson][currentTask];
+                }
+            }
+            refresh();
+        }
+    }, true);
+
+    refresh();
+
+
+</script>
+
+</body>
+</html>
