@@ -438,7 +438,7 @@ export class ClockGame extends Phaser.Scene {
         break;
 
       case 'lamborghini':
-        // Keep gold but add red accents
+        // Gold clock with red accents - red and black hands for visibility
         this.clockFace.setFillStyle(0xFFD700);
         this.clockFace.setStrokeStyle(8, 0xFF0000);
 
@@ -446,12 +446,13 @@ export class ClockGame extends Phaser.Scene {
           this.clockGlow.setFillStyle(0xFF0000, 0.3);
         }
 
+        // Red hour hand, black minute hand for contrast against gold
         this.hourHand.setStrokeStyle(8, 0xFF0000);
-        this.minuteHand.setStrokeStyle(6, 0xFFD700);
+        this.minuteHand.setStrokeStyle(6, 0x1A1A1A); // Black for visibility
         break;
 
       case 'iron':
-        // Silver/iron metallic
+        // Silver/iron metallic with dark hands for visibility
         this.clockFace.setFillStyle(0xC0C0C0);
         this.clockFace.setStrokeStyle(8, 0x808080);
 
@@ -459,8 +460,9 @@ export class ClockGame extends Phaser.Scene {
           this.clockGlow.setFillStyle(0xE8E8E8, 0.4);
         }
 
-        this.hourHand.setStrokeStyle(8, 0x696969);
-        this.minuteHand.setStrokeStyle(6, 0xA9A9A9);
+        // Dark hands for good contrast against silver
+        this.hourHand.setStrokeStyle(8, 0x2C3E50); // Dark blue/gray
+        this.minuteHand.setStrokeStyle(6, 0x1A1A1A); // Black
         break;
 
       case 'galaxy':
