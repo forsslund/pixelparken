@@ -1,0 +1,232 @@
+body {
+    margin: 0;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#game-container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 900px;
+}
+
+.game-title {
+    text-align: center;
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.progress-info {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+    color: #555;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 30px;
+    background: #e0e0e0;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    transition: width 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+
+.question-area {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.question-text {
+    font-size: 2em;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.answer-input {
+    font-size: 1.5em;
+    padding: 10px 20px;
+    border: 3px solid #667eea;
+    border-radius: 10px;
+    text-align: center;
+    width: 150px;
+    margin-right: 10px;
+}
+
+.answer-input:focus {
+    outline: none;
+    border-color: #764ba2;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+.btn {
+    font-size: 1.2em;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    margin: 5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+}
+
+.feedback {
+    margin-top: 15px;
+    font-size: 1.3em;
+    font-weight: bold;
+    min-height: 30px;
+}
+
+.feedback.correct {
+    color: #28a745;
+}
+
+.feedback.incorrect {
+    color: #dc3545;
+}
+
+.multiplication-table {
+    display: grid;
+    grid-template-columns: 50px repeat(10, 1fr);
+    gap: 2px;
+    background: #ddd;
+    border: 2px solid #667eea;
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.table-cell {
+    background: white;
+    padding: 12px;
+    text-align: center;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    transition: all 0.3s ease;
+}
+
+.table-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.table-cell.discovered {
+    background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+    animation: reveal 0.5s ease;
+    font-weight: bold;
+    color: #333;
+}
+
+.table-cell.undiscovered {
+    background: #f0f0f0;
+    color: transparent;
+}
+
+@keyframes reveal {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.completion-message {
+    text-align: center;
+    font-size: 2.5em;
+    color: #28a745;
+    font-weight: bold;
+    margin: 20px 0;
+    animation: celebrate 1s ease;
+}
+
+@keyframes celebrate {
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.1) rotate(-5deg);
+    }
+    75% {
+        transform: scale(1.1) rotate(5deg);
+    }
+}
+
+@media (max-width: 768px) {
+    #game-container {
+        padding: 15px;
+    }
+
+    .game-title {
+        font-size: 1.5em;
+    }
+
+    .question-text {
+        font-size: 1.5em;
+    }
+
+    .table-cell {
+        padding: 8px;
+        font-size: 0.9em;
+        min-height: 30px;
+    }
+
+    .multiplication-table {
+        grid-template-columns: 40px repeat(10, 1fr);
+    }
+}

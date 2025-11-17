@@ -24,6 +24,14 @@ export class Launcher {
         icon: '🎮',
         path: './games/tetris/index.html',
       },
+      {
+        id: 'multiplication-table',
+        name: 'Multiplikationstabellen',
+        description: 'Lär dig multiplikationstabellen på ett roligt sätt!',
+        category: 'educational',
+        icon: '🧮',
+        path: './games/multiplication-table/index.html',
+      },
       // More games will be added here in future versions
       // {
       //   id: 'memory',
