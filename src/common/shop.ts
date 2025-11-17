@@ -12,7 +12,7 @@ export interface ShopItem {
   multiplier: number;
   icon: string;
   description: string;
-  visualEffect: 'gold-clock' | 'common-car' | 'lamborghini' | 'iron' | 'galaxy';
+  visualEffect: 'gold-clock' | 'common-car' | 'lamborghini' | 'iron' | 'black-hole' | 'galaxy';
 }
 
 /**
@@ -54,6 +54,15 @@ export const SHOP_ITEMS: ShopItem[] = [
     icon: '🔩',
     description: 'En metallic Lamborghini i järn. Exakt 9.9m kr!',
     visualEffect: 'iron',
+  },
+  {
+    id: 'black-hole-car',
+    name: 'Black Hole Car',
+    price: 100_000_000,
+    multiplier: 10_000_000,
+    icon: '🌑',
+    description: 'En mystisk bil från rymdens mörkaste hörn!',
+    visualEffect: 'black-hole',
   },
   {
     id: 'galaxy-lamborghini',
@@ -170,12 +179,15 @@ export function getNextItem(): ShopItem | null {
 /**
  * Get visual effect for the clock based on purchased items
  */
-export function getClockVisualEffect(): 'gold-clock' | 'common-car' | 'lamborghini' | 'iron' | 'galaxy' | 'default' {
+export function getClockVisualEffect(): 'gold-clock' | 'common-car' | 'lamborghini' | 'iron' | 'black-hole' | 'galaxy' | 'default' {
   const purchased = getPurchasedItems();
 
   // Return the highest tier visual effect
   if (purchased.includes('galaxy-lamborghini')) {
     return 'galaxy';
+  }
+  if (purchased.includes('black-hole-car')) {
+    return 'black-hole';
   }
   if (purchased.includes('iron-lamborghini')) {
     return 'iron';

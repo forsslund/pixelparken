@@ -465,6 +465,38 @@ export class ClockGame extends Phaser.Scene {
         this.minuteHand.setStrokeStyle(6, 0x1A1A1A); // Black
         break;
 
+      case 'black-hole':
+        // Black hole theme - very dark with intense purple glow
+        this.clockFace.setFillStyle(0x1A1A1A); // Very dark/black
+        this.clockFace.setStrokeStyle(8, 0x7B2CBF); // Deep purple
+
+        // Add intense purple glow effect
+        this.clockGlow = this.add.circle(
+          this.clockCenterX,
+          this.clockCenterY,
+          this.clockRadius + 10,
+          0x9D4EDD,
+          0.6
+        );
+        this.clockGlow.setDepth(-1);
+
+        // Intense pulsing glow animation
+        this.tweens.add({
+          targets: this.clockGlow,
+          scaleX: 1.2,
+          scaleY: 1.2,
+          alpha: 0.8,
+          duration: 1500,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+        });
+
+        // Bright hands for maximum visibility on dark background
+        this.hourHand.setStrokeStyle(8, 0xFFFFFF); // White
+        this.minuteHand.setStrokeStyle(6, 0xC77DFF); // Light purple
+        break;
+
       case 'galaxy':
         // Purple/blue galaxy theme
         this.clockFace.setFillStyle(0x764ba2);
