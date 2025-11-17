@@ -17,6 +17,14 @@ export class Launcher {
         path: './games/klockan/index.html',
       },
       {
+        id: 'tangent',
+        name: 'Tangentträning',
+        description: 'Lär dig skriva snabbt och korrekt på tangentbordet!',
+        category: 'educational',
+        icon: '⌨️',
+        path: './games/tangent/index.html',
+      },
+      {
         id: 'tetris',
         name: 'Tetris',
         description: 'Stapla blocken och rensa rader!',
