@@ -23,7 +23,7 @@ export class TangentGame extends Phaser.Scene {
   private currentText = '';
   private currentCharIndex = 0;
 
-  private textDisplay?: Phaser.GameObjects.Text;
+  private textDisplayDOM?: HTMLDivElement;
   private lessonText?: Phaser.GameObjects.Text;
   private exerciseText?: Phaser.GameObjects.Text;
   private instructionText?: Phaser.GameObjects.Text;
@@ -93,14 +93,28 @@ export class TangentGame extends Phaser.Scene {
     const textBg = this.add.rectangle(400, 180, 760, 120, 0x34495e);
     textBg.setStrokeStyle(2, 0x7f8c8d);
 
-    this.textDisplay = this.add.text(400, 180, '', {
-      fontSize: '20px',
-      color: '#ecf0f1',
-      fontFamily: 'Consolas, Courier, monospace',
-      wordWrap: { width: 720 },
-      align: 'left',
-      lineSpacing: 8
-    }).setOrigin(0.5);
+    // Create DOM element for text display
+    this.textDisplayDOM = document.createElement('div');
+    this.textDisplayDOM.style.position = 'absolute';
+    this.textDisplayDOM.style.left = '50%';
+    this.textDisplayDOM.style.top = '180px';
+    this.textDisplayDOM.style.transform = 'translateX(-50%)';
+    this.textDisplayDOM.style.width = '720px';
+    this.textDisplayDOM.style.fontSize = '20px';
+    this.textDisplayDOM.style.color = '#ecf0f1';
+    this.textDisplayDOM.style.fontFamily = 'Consolas, Courier, monospace';
+    this.textDisplayDOM.style.textAlign = 'center';
+    this.textDisplayDOM.style.lineHeight = '1.4';
+    this.textDisplayDOM.style.whiteSpace = 'pre-wrap';
+    this.textDisplayDOM.style.wordWrap = 'break-word';
+    this.textDisplayDOM.style.zIndex = '1000';
+    this.textDisplayDOM.style.pointerEvents = 'none';
+
+    const gameContainer = document.getElementById('game-container');
+    if (gameContainer) {
+      gameContainer.style.position = 'relative';
+      gameContainer.appendChild(this.textDisplayDOM);
+    }
   }
 
   private createKeyboard(): void {
@@ -204,10 +218,10 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private updateTextDisplay(): void {
-    if (!this.textDisplay) return;
+    if (!this.textDisplayDOM) return;
 
-    // Build HTML-like text with highlighted character
-    let displayText = '';
+    // Build HTML text with highlighted character
+    let displayHTML = '';
     const lines = this.currentText.split('\n');
     let charCount = 0;
 
@@ -216,28 +230,30 @@ export class TangentGame extends Phaser.Scene {
 
       for (let i = 0; i < line.length; i++) {
         const char = line[i];
+        const escapedChar = char === '<' ? '&lt;' : char === '>' ? '&gt;' : char === '&' ? '&amp;' : char;
 
         if (charCount === this.currentCharIndex) {
-          // Current character - highlight with background
-          displayText += `[#000000][b]${char === ' ' ? '␣' : char}[/b][/#000000]`;
+          // Current character - highlight with yellow background
+          const displayChar = char === ' ' ? '␣' : escapedChar;
+          displayHTML += `<span style="background-color: #f1c40f; color: #000; padding: 2px 4px; border-radius: 3px; font-weight: bold;">${displayChar}</span>`;
         } else if (charCount < this.currentCharIndex) {
           // Already typed - show in green
-          displayText += `[#00b894]${char}[/#00b894]`;
+          displayHTML += `<span style="color: #00b894;">${escapedChar}</span>`;
         } else {
           // Not yet typed - show normal
-          displayText += char;
+          displayHTML += escapedChar;
         }
 
         charCount++;
       }
 
       if (lineIdx < lines.length - 1) {
-        displayText += '\n';
+        displayHTML += '\n';
         charCount++; // Count the newline
       }
     }
 
-    this.textDisplay.setText(displayText);
+    this.textDisplayDOM.innerHTML = displayHTML;
   }
 
   private loadExercise(): void {
@@ -270,14 +286,14 @@ export class TangentGame extends Phaser.Scene {
 
   private completeExercise(): void {
     // Show completion feedback
-    if (this.textDisplay) {
-      this.textDisplay.setColor('#00b894');
+    if (this.textDisplayDOM) {
+      this.textDisplayDOM.style.color = '#00b894';
     }
 
     // Move to next exercise after a short delay
     this.time.delayedCall(500, () => {
-      if (this.textDisplay) {
-        this.textDisplay.setColor('#ecf0f1');
+      if (this.textDisplayDOM) {
+        this.textDisplayDOM.style.color = '#ecf0f1';
       }
 
       this.currentExercise++;
@@ -287,10 +303,10 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private showCompletionMessage(): void {
-    if (this.textDisplay) {
-      this.textDisplay.setText('🎉 Grattis! Du har klarat alla lektioner! 🎉');
-      this.textDisplay.setColor('#00b894');
-      this.textDisplay.setFontSize('24px');
+    if (this.textDisplayDOM) {
+      this.textDisplayDOM.innerHTML = '🎉 Grattis! Du har klarat alla lektioner! 🎉';
+      this.textDisplayDOM.style.color = '#00b894';
+      this.textDisplayDOM.style.fontSize = '24px';
     }
 
     if (this.instructionText) {
@@ -344,6 +360,13 @@ export class TangentGame extends Phaser.Scene {
     this.currentLesson = 0;
     this.currentExercise = 0;
     this.saveProgress();
+  }
+
+  shutdown(): void {
+    // Clean up DOM element when scene is shut down
+    if (this.textDisplayDOM && this.textDisplayDOM.parentNode) {
+      this.textDisplayDOM.parentNode.removeChild(this.textDisplayDOM);
+    }
   }
 }
 
