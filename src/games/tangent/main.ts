@@ -5,13 +5,18 @@ import './tangent.css';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 550,
+  width: 720,
+  height: 495,
   parent: 'game-container',
   backgroundColor: '#2d3436',
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
+  render: {
+    antialias: true,
+    pixelArt: false,
+    roundPixels: false,
   },
   scene: TangentGame,
 };

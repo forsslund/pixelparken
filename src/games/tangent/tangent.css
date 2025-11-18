@@ -67,6 +67,21 @@ body {
   overflow: hidden;
 }
 
+#game-container canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Text display styling for crisp rendering */
+#game-container div {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
 /* Responsive design */
 @media (max-width: 900px) {
   .game-header {

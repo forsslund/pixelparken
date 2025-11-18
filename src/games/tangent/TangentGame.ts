@@ -57,22 +57,22 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private createHeader(): void {
-    const headerBg = this.add.rectangle(400, 40, 760, 60, 0x34495e);
+    const headerBg = this.add.rectangle(360, 40, 680, 60, 0x34495e);
     headerBg.setStrokeStyle(2, 0x7f8c8d);
 
-    this.add.text(400, 30, '⌨️ Tangentträning', {
+    this.add.text(360, 30, '⌨️ Tangentträning', {
       fontSize: '24px',
       color: '#ecf0f1',
       fontStyle: 'bold'
     }).setOrigin(0.5);
 
     // Lesson and exercise counters
-    this.lessonText = this.add.text(150, 50, '', {
+    this.lessonText = this.add.text(135, 50, '', {
       fontSize: '16px',
       color: '#bdc3c7'
     }).setOrigin(0.5);
 
-    this.exerciseText = this.add.text(650, 50, '', {
+    this.exerciseText = this.add.text(585, 50, '', {
       fontSize: '16px',
       color: '#bdc3c7'
     }).setOrigin(0.5);
@@ -81,32 +81,34 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private createInstructions(): void {
-    this.instructionText = this.add.text(400, 100, 'Skriv texten som visas nedan. Den markerade bokstaven är nästa att skriva.', {
+    this.instructionText = this.add.text(360, 100, 'Skriv texten som visas nedan. Den markerade bokstaven är nästa att skriva.', {
       fontSize: '14px',
       color: '#95a5a6',
-      wordWrap: { width: 700 }
+      wordWrap: { width: 630 }
     }).setOrigin(0.5);
   }
 
   private createTextDisplay(): void {
-    // Background for text
-    const textBg = this.add.rectangle(400, 180, 760, 120, 0x34495e);
+    // Background for text (moved down and made wider)
+    const textBg = this.add.rectangle(360, 260, 700, 50, 0x34495e);
     textBg.setStrokeStyle(2, 0x7f8c8d);
 
     // Create DOM element for text display
     this.textDisplayDOM = document.createElement('div');
     this.textDisplayDOM.style.position = 'absolute';
     this.textDisplayDOM.style.left = '50%';
-    this.textDisplayDOM.style.top = '180px';
+    this.textDisplayDOM.style.top = '260px';
     this.textDisplayDOM.style.transform = 'translateX(-50%)';
-    this.textDisplayDOM.style.width = '720px';
+    this.textDisplayDOM.style.width = '680px';
+    this.textDisplayDOM.style.maxWidth = '680px';
     this.textDisplayDOM.style.fontSize = '20px';
     this.textDisplayDOM.style.color = '#ecf0f1';
     this.textDisplayDOM.style.fontFamily = 'Consolas, Courier, monospace';
     this.textDisplayDOM.style.textAlign = 'center';
-    this.textDisplayDOM.style.lineHeight = '1.4';
-    this.textDisplayDOM.style.whiteSpace = 'pre-wrap';
-    this.textDisplayDOM.style.wordWrap = 'break-word';
+    this.textDisplayDOM.style.lineHeight = '1.2';
+    this.textDisplayDOM.style.whiteSpace = 'nowrap';
+    this.textDisplayDOM.style.overflow = 'hidden';
+    this.textDisplayDOM.style.textOverflow = 'ellipsis';
     this.textDisplayDOM.style.zIndex = '1000';
     this.textDisplayDOM.style.pointerEvents = 'none';
 
@@ -118,8 +120,8 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private createKeyboard(): void {
-    const startX = 100;
-    const startY = 280;
+    const startX = 90;
+    const startY = 330;
     const keyWidth = 45;
     const keyHeight = 45;
     const keySpacing = 5;
@@ -133,6 +135,11 @@ export class TangentGame extends Phaser.Scene {
         const isSpace = key === 'Space';
         const width = isSpace ? 300 : keyWidth;
         const label = isSpace ? 'Mellanslag' : key;
+
+        // Center the space bar
+        if (isSpace) {
+          currentX = 360; // Center of 720px canvas
+        }
 
         // Create key background
         const keyRect = this.add.rectangle(currentX, currentY, width, keyHeight, 0x34495e);
@@ -150,14 +157,16 @@ export class TangentGame extends Phaser.Scene {
         this.keyboardKeys.set(mapKey, keyRect);
         this.keyboardLabels.set(mapKey, keyLabel);
 
-        currentX += width + keySpacing;
+        if (!isSpace) {
+          currentX += width + keySpacing;
+        }
       });
 
       currentY += keyHeight + keySpacing;
     });
 
     // Add special note
-    this.add.text(400, currentY + 20, 'Tangentbordet visar vilka tangenter som trycks', {
+    this.add.text(360, currentY + 15, 'Tangentbordet visar vilka tangenter som trycks', {
       fontSize: '12px',
       color: '#7f8c8d',
       fontStyle: 'italic'
