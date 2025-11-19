@@ -19,7 +19,7 @@ export class LauncherView {
   constructor() {
     this.launcher = new Launcher();
     this.container = document.getElementById('app');
-    this.init();
+    void this.init();
   }
 
   private async init(): Promise<void> {
@@ -36,10 +36,12 @@ export class LauncherView {
   private showRegistration(): void {
     if (!this.container) return;
 
-    const registration = new UserRegistration(this.container, async () => {
-      await this.render();
-      this.setupShopEventListeners();
-      this.setupResetButton();
+    const registration = new UserRegistration(this.container, () => {
+      void (async () => {
+        await this.render();
+        this.setupShopEventListeners();
+        this.setupResetButton();
+      })();
     });
 
     registration.render();

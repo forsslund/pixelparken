@@ -19,7 +19,7 @@
     "backend:install": "cd backend && npm install",
     "backend:dev": "cd backend && npm run dev",
     "backend:build": "cd backend && npm run build",
-    "deploy": "./build-and-deploy.sh",
+    "deploy": "npm run build && cd backend && npm run deploy",
     "setup": "npm install && npm run backend:install"
   },
   "dependencies": {

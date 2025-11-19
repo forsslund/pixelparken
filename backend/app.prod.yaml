@@ -1,0 +1,40 @@
+runtime: nodejs20
+
+# Environment variables
+env_variables:
+  NODE_ENV: 'production'
+
+# Automatic scaling settings
+automatic_scaling:
+  min_instances: 0
+  max_instances: 10
+  target_cpu_utilization: 0.65
+
+# Handlers for static files and API
+handlers:
+  # Serve static files from the public directory
+  - url: /assets
+    static_dir: public/assets
+    secure: always
+
+  - url: /games
+    static_dir: public/games
+    secure: always
+
+  - url: /icons
+    static_dir: public/icons
+    secure: always
+
+  - url: /shared-assets
+    static_dir: public/shared-assets
+    secure: always
+
+  # API routes
+  - url: /api/.*
+    script: auto
+    secure: always
+
+  # All other routes serve the main index.html
+  - url: /.*
+    script: auto
+    secure: always

@@ -77,30 +77,32 @@ export class Guestbook {
       return;
     }
 
-    submitBtn.addEventListener('click', async () => {
-      const user = userStore.getUser();
-      if (!user) return;
+    submitBtn.addEventListener('click', () => {
+      void (async () => {
+        const user = userStore.getUser();
+        if (!user) return;
 
-      const message = messageInput.value.trim();
-      if (!message) return;
+        const message = messageInput.value.trim();
+        if (!message) return;
 
-      try {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Sparar...';
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Sparar...';
 
-        await api.createGuestbookEntry(user.username, message, user.avatar);
-        messageInput.value = '';
+          await api.createGuestbookEntry(user.username, message, user.avatar);
+          messageInput.value = '';
 
-        await this.loadEntries();
+          await this.loadEntries();
 
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Lägg till meddelande';
-      } catch (error) {
-        alert('Kunde inte spara meddelandet. Försök igen.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Lägg till meddelande';
-        console.error('Failed to create guestbook entry:', error);
-      }
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Lägg till meddelande';
+        } catch (error) {
+          alert('Kunde inte spara meddelandet. Försök igen.');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Lägg till meddelande';
+          console.error('Failed to create guestbook entry:', error);
+        }
+      })();
     });
   }
 

@@ -79,28 +79,30 @@ export class UserRegistration {
     });
 
     // Register button
-    registerBtn.addEventListener('click', async () => {
-      const username = usernameInput.value.trim();
+    registerBtn.addEventListener('click', () => {
+      void (async () => {
+        const username = usernameInput.value.trim();
 
-      if (!username || !selectedAvatar) {
-        return;
-      }
+        if (!username || !selectedAvatar) {
+          return;
+        }
 
-      try {
-        registerBtn.disabled = true;
-        registerBtn.textContent = 'Skapar konto...';
-        errorMessage.textContent = '';
+        try {
+          registerBtn.disabled = true;
+          registerBtn.textContent = 'Skapar konto...';
+          errorMessage.textContent = '';
 
-        const user = await api.createUser(username, selectedAvatar);
-        userStore.setUser(user);
-        this.onComplete();
-      } catch (error) {
-        errorMessage.textContent = error instanceof Error
-          ? error.message
-          : 'Något gick fel. Försök igen.';
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Skapa konto';
-      }
+          const user = await api.createUser(username, selectedAvatar);
+          userStore.setUser(user);
+          this.onComplete();
+        } catch (error) {
+          errorMessage.textContent = error instanceof Error
+            ? error.message
+            : 'Något gick fel. Försök igen.';
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Skapa konto';
+        }
+      })();
     });
   }
 
