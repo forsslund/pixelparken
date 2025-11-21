@@ -1,0 +1,99 @@
+/* Tangent Game Specific Styles */
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin: 0;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.game-header h1 {
+  margin: 0;
+  color: #2d3436;
+  font-size: 28px;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.back-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #636e72;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: #2d3436;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.progress-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 14px;
+  color: #2d3436;
+}
+
+.progress-display span {
+  margin: 2px 0;
+}
+
+.progress-display strong {
+  color: #6c5ce7;
+  font-size: 16px;
+}
+
+#game-container {
+  background: #2d3436;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+#game-container canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Text display styling for crisp rendering */
+#game-container div {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+  .game-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .game-header h1 {
+    text-align: center;
+  }
+
+  .progress-display {
+    align-items: center;
+  }
+}
