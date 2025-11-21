@@ -89,26 +89,21 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private createTextDisplay(): void {
-    // Background for text (moved down and made wider)
-    const textBg = this.add.rectangle(360, 260, 700, 50, 0x34495e);
-    textBg.setStrokeStyle(2, 0x7f8c8d);
-
     // Create DOM element for text display
     this.textDisplayDOM = document.createElement('div');
     this.textDisplayDOM.style.position = 'absolute';
     this.textDisplayDOM.style.left = '50%';
     this.textDisplayDOM.style.top = '260px';
     this.textDisplayDOM.style.transform = 'translateX(-50%)';
-    this.textDisplayDOM.style.width = '680px';
-    this.textDisplayDOM.style.maxWidth = '680px';
+    this.textDisplayDOM.style.width = '100%';
+    this.textDisplayDOM.style.maxWidth = '100%';
     this.textDisplayDOM.style.fontSize = '20px';
     this.textDisplayDOM.style.color = '#ecf0f1';
     this.textDisplayDOM.style.fontFamily = 'Consolas, Courier, monospace';
     this.textDisplayDOM.style.textAlign = 'center';
     this.textDisplayDOM.style.lineHeight = '1.2';
     this.textDisplayDOM.style.whiteSpace = 'nowrap';
-    this.textDisplayDOM.style.overflow = 'hidden';
-    this.textDisplayDOM.style.textOverflow = 'ellipsis';
+    this.textDisplayDOM.style.overflow = 'visible';
     this.textDisplayDOM.style.zIndex = '1000';
     this.textDisplayDOM.style.pointerEvents = 'none';
 
@@ -121,10 +116,10 @@ export class TangentGame extends Phaser.Scene {
 
   private createKeyboard(): void {
     const startX = 90;
-    const startY = 330;
+    const startY = 222;
     const keyWidth = 45;
-    const keyHeight = 45;
-    const keySpacing = 5;
+    const keyHeight = 36;
+    const keySpacing = 3;
 
     let currentY = startY;
 
@@ -240,17 +235,17 @@ export class TangentGame extends Phaser.Scene {
       for (let i = 0; i < line.length; i++) {
         const char = line[i];
         const escapedChar = char === '<' ? '&lt;' : char === '>' ? '&gt;' : char === '&' ? '&amp;' : char;
+        const displayChar = char === ' ' ? '␣' : escapedChar;
 
         if (charCount === this.currentCharIndex) {
           // Current character - highlight with yellow background
-          const displayChar = char === ' ' ? '␣' : escapedChar;
           displayHTML += `<span style="background-color: #f1c40f; color: #000; padding: 2px 4px; border-radius: 3px; font-weight: bold;">${displayChar}</span>`;
         } else if (charCount < this.currentCharIndex) {
           // Already typed - show in green
-          displayHTML += `<span style="color: #00b894;">${escapedChar}</span>`;
+          displayHTML += `<span style="color: #00b894;">${displayChar}</span>`;
         } else {
           // Not yet typed - show normal
-          displayHTML += escapedChar;
+          displayHTML += displayChar;
         }
 
         charCount++;

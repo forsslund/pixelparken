@@ -150,7 +150,7 @@ export const lessons: Lesson[] = [
       "måndag, tisdag, onsdag, torsdag, fredag, lördag, söndag.",
       "röd, gul, blå, vit, grön, lila, rosa, svart, brun, grå.",
       "the quick brown fox jumped over the lazy dog. a till z finns.",
-      "detta är en automatisk telefonsvarare, var god och lämna...",
+      "detta är en automatisk telefonsvarare, var god och lämna meddelande",
       "exakt när laxen blir klar kan jag inte säga, svarade zara.",
       "taxi, taxi, skrek jag, snön vräkte när, klockan var redan sex.",
       "ett, två, tre, fyra, fem, sex, sju, åtta, nio, tio, elva, tolv.",
