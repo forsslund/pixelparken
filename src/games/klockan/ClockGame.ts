@@ -9,6 +9,8 @@ interface TimeOption {
   text: string;
 }
 
+type DifficultyLevel = 'easy' | 'medium' | 'hard';
+
 export class ClockGame extends Phaser.Scene {
   private clockCenterX!: number;
   private clockCenterY!: number;
@@ -170,22 +172,44 @@ export class ClockGame extends Phaser.Scene {
     );
   }
 
+  private getDifficultyLevel(): DifficultyLevel {
+    if (this.correctAnswers < 10) {
+      return 'easy';
+    } else if (this.correctAnswers < 20) {
+      return 'medium';
+    } else {
+      return 'hard';
+    }
+  }
+
   private generateNewQuestion(): void {
     // Clear previous buttons
     this.optionButtons.forEach(btn => btn.destroy());
     this.optionButtons = [];
     this.feedbackText.setText('');
 
-    // Generate a random time (simplified to hours and quarters)
+    const difficulty = this.getDifficultyLevel();
     const possibleMinutes = [0, 15, 30, 45];
-    this.currentHours = Phaser.Math.Between(1, 12);
+
+    // Generate a random time based on difficulty
+    if (difficulty === 'easy') {
+      // Easy: 12-hour format (1-12)
+      this.currentHours = Phaser.Math.Between(1, 12);
+    } else if (difficulty === 'medium') {
+      // Medium: 24-hour format (13-23 for afternoon/evening)
+      this.currentHours = Phaser.Math.Between(13, 23);
+    } else {
+      // Hard: mix of 12-hour and 24-hour
+      this.currentHours = Phaser.Math.Between(1, 23);
+    }
+
     this.currentMinutes = Phaser.Utils.Array.GetRandom(possibleMinutes);
 
     // Update the clock display
     this.updateClockHands(this.currentHours, this.currentMinutes);
 
     // Generate answer options
-    const correctAnswer = this.formatTime(this.currentHours, this.currentMinutes);
+    const correctAnswer = this.formatTimeForDifficulty(this.currentHours, this.currentMinutes, difficulty);
     const options = this.generateOptions(this.currentHours, this.currentMinutes);
 
     // Shuffle options
@@ -333,9 +357,49 @@ export class ClockGame extends Phaser.Scene {
     return `${h}:${m}`;
   }
 
+  private formatTimeAsText(hours: number, minutes: number): string {
+    const hourNames = [
+      '', 'ett', 'två', 'tre', 'fyra', 'fem', 'sex', 'sju', 'åtta', 'nio', 'tio', 'elva', 'tolv',
+      'tretton', 'fjorton', 'femton', 'sexton', 'sjutton', 'arton', 'nitton', 'tjugo', 'tjugoett', 'tjugotvå', 'tjugotre'
+    ];
+
+    const displayHour = hours % 24;
+
+    if (minutes === 0) {
+      return `Klockan ${hourNames[displayHour]}`;
+    } else if (minutes === 15) {
+      return `Kvart över ${hourNames[displayHour]}`;
+    } else if (minutes === 30) {
+      // For "halv", we always refer to the next hour in 12-hour format
+      // e.g., 14:30 = "Halv tre" (not "Halv femton")
+      const nextHour = displayHour + 1;
+      const displayNextHour = nextHour > 12 ? nextHour - 12 : nextHour;
+      return `Halv ${hourNames[displayNextHour]}`;
+    } else if (minutes === 45) {
+      // For "kvart i", we always refer to the next hour in 12-hour format
+      // e.g., 14:45 = "Kvart i tre" (not "Kvart i femton")
+      const nextHour = displayHour + 1;
+      const displayNextHour = nextHour > 12 ? nextHour - 12 : nextHour;
+      return `Kvart i ${hourNames[displayNextHour]}`;
+    }
+
+    return this.formatTime(hours, minutes);
+  }
+
+  private formatTimeForDifficulty(hours: number, minutes: number, difficulty: DifficultyLevel): string {
+    if (difficulty === 'hard') {
+      // For hard difficulty, use text representation
+      return this.formatTimeAsText(hours, minutes);
+    } else {
+      // For easy and medium, use digital format
+      return this.formatTime(hours, minutes);
+    }
+  }
+
   private generateOptions(correctHours: number, correctMinutes: number): TimeOption[] {
     const options: TimeOption[] = [];
-    const correctText = this.formatTime(correctHours, correctMinutes);
+    const difficulty = this.getDifficultyLevel();
+    const correctText = this.formatTimeForDifficulty(correctHours, correctMinutes, difficulty);
 
     // Add correct answer
     options.push({
@@ -345,21 +409,27 @@ export class ClockGame extends Phaser.Scene {
     });
 
     // Generate 2 wrong answers
+    const possibleMinutes = [0, 15, 30, 45];
     while (options.length < 3) {
       let wrongHours = correctHours;
       let wrongMinutes = correctMinutes;
 
       // Randomly modify either hours or minutes
       if (Math.random() > 0.5) {
-        // Change hours
-        wrongHours = Phaser.Math.Between(1, 12);
+        // Change hours based on difficulty
+        if (difficulty === 'easy') {
+          wrongHours = Phaser.Math.Between(1, 12);
+        } else if (difficulty === 'medium') {
+          wrongHours = Phaser.Math.Between(13, 23);
+        } else {
+          wrongHours = Phaser.Math.Between(1, 23);
+        }
       } else {
         // Change minutes
-        const possibleMinutes = [0, 15, 30, 45];
         wrongMinutes = Phaser.Utils.Array.GetRandom(possibleMinutes);
       }
 
-      const wrongText = this.formatTime(wrongHours, wrongMinutes);
+      const wrongText = this.formatTimeForDifficulty(wrongHours, wrongMinutes, difficulty);
 
       // Make sure it's not already in options
       if (!options.find(opt => opt.text === wrongText)) {
