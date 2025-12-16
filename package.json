@@ -4,7 +4,8 @@
   "description": "A safe, ad-free browser-based game suite for kids aged 8-10",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "concurrently -n vite,firebase,backend -c blue,yellow,green \"vite\" \"firebase emulators:start\" \"npm run backend:dev\"",
+    "dev:vite": "vite",
     "build": "vite build",
     "build:check": "tsc && vite build",
     "preview": "vite preview",
@@ -31,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^8.46.4",
     "@typescript-eslint/parser": "^8.46.4",
     "@vitest/ui": "^4.0.9",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
     "jsdom": "^27.2.0",
