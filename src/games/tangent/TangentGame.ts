@@ -31,6 +31,7 @@ export class TangentGame extends Phaser.Scene {
   // Keyboard visualization
   private keyboardKeys: Map<string, Phaser.GameObjects.Rectangle> = new Map();
   private keyboardLabels: Map<string, Phaser.GameObjects.Text> = new Map();
+  private currentHighlightedKey?: string;
 
   constructor() {
     super({ key: 'TangentGame' });
@@ -216,8 +217,36 @@ export class TangentGame extends Phaser.Scene {
       // Flash the key
       keyRect.setFillStyle(color);
       this.time.delayedCall(200, () => {
-        keyRect.setFillStyle(0x34495e);
+        // Return to normal or expected key highlight color
+        const isCurrentExpected = this.currentHighlightedKey === key ||
+                                  this.currentHighlightedKey === key.toLowerCase() ||
+                                  this.currentHighlightedKey === key.toUpperCase();
+        keyRect.setFillStyle(isCurrentExpected ? 0xf39c12 : 0x34495e);
       });
+    }
+  }
+
+  private highlightExpectedKey(): void {
+    // Clear previous highlight
+    if (this.currentHighlightedKey) {
+      const prevKeyRect = this.keyboardKeys.get(this.currentHighlightedKey);
+      if (prevKeyRect) {
+        prevKeyRect.setFillStyle(0x34495e);
+      }
+      this.currentHighlightedKey = undefined;
+    }
+
+    // Highlight the next expected key
+    if (this.currentCharIndex < this.currentText.length) {
+      const expectedChar = this.currentText[this.currentCharIndex];
+      const keyRect = this.keyboardKeys.get(expectedChar.toLowerCase()) ||
+                     this.keyboardKeys.get(expectedChar.toUpperCase()) ||
+                     (expectedChar === ' ' ? this.keyboardKeys.get(' ') : null);
+
+      if (keyRect) {
+        keyRect.setFillStyle(0xf39c12); // Orange color for expected key
+        this.currentHighlightedKey = expectedChar === ' ' ? ' ' : expectedChar.toLowerCase();
+      }
     }
   }
 
@@ -258,6 +287,9 @@ export class TangentGame extends Phaser.Scene {
     }
 
     this.textDisplayDOM.innerHTML = displayHTML;
+
+    // Highlight the expected key on the keyboard
+    this.highlightExpectedKey();
   }
 
   private loadExercise(): void {
@@ -289,6 +321,15 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private completeExercise(): void {
+    // Clear keyboard highlight
+    if (this.currentHighlightedKey) {
+      const prevKeyRect = this.keyboardKeys.get(this.currentHighlightedKey);
+      if (prevKeyRect) {
+        prevKeyRect.setFillStyle(0x34495e);
+      }
+      this.currentHighlightedKey = undefined;
+    }
+
     // Show completion feedback
     if (this.textDisplayDOM) {
       this.textDisplayDOM.style.color = '#00b894';
@@ -307,6 +348,15 @@ export class TangentGame extends Phaser.Scene {
   }
 
   private showCompletionMessage(): void {
+    // Clear keyboard highlight
+    if (this.currentHighlightedKey) {
+      const prevKeyRect = this.keyboardKeys.get(this.currentHighlightedKey);
+      if (prevKeyRect) {
+        prevKeyRect.setFillStyle(0x34495e);
+      }
+      this.currentHighlightedKey = undefined;
+    }
+
     if (this.textDisplayDOM) {
       this.textDisplayDOM.innerHTML = '🎉 Grattis! Du har klarat alla lektioner! 🎉';
       this.textDisplayDOM.style.color = '#00b894';
