@@ -25,6 +25,14 @@ export class Launcher {
         path: './games/tangent/index.html',
       },
       {
+        id: 'gangertabellen',
+        name: 'Gångertabellen',
+        description: 'Memorera multiplikationsfakta upp till 10×10 — snabbt och felfritt!',
+        category: 'educational',
+        icon: '✖️',
+        path: './games/gangertabellen/index.html',
+      },
+      {
         id: 'tetris',
         name: 'Tetris',
         description: 'Stapla blocken och rensa rader!',

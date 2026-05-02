@@ -1,0 +1,79 @@
+/* Gångertabellen — game-specific styles */
+
+body {
+  background: linear-gradient(135deg, #fceabb 0%, #f8b500 100%);
+  margin: 0;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.game-header h1 {
+  margin: 0;
+  color: #2d3436;
+  font-size: 28px;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.back-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #636e72;
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background: #2d3436;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.session-display {
+  font-size: 14px;
+  color: #2d3436;
+  min-width: 180px;
+  text-align: right;
+}
+
+.session-display strong {
+  color: #d35400;
+  font-size: 16px;
+}
+
+#game-container {
+  background: #2d3436;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+#game-container canvas {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@media (max-width: 900px) {
+  .game-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .session-display {
+    text-align: center;
+  }
+}

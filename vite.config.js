@@ -12,6 +12,7 @@ export default defineConfig({
         klockan: path.resolve(__dirname, 'games/klockan/index.html'),
         tetris: path.resolve(__dirname, 'games/tetris/index.html'),
         tangent: path.resolve(__dirname, 'games/tangent/index.html'),
+        gangertabellen: path.resolve(__dirname, 'games/gangertabellen/index.html'),
       },
     },
   },
