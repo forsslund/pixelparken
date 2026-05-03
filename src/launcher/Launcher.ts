@@ -25,6 +25,14 @@ export class Launcher {
         path: './games/tangent/index.html',
       },
       {
+        id: 'numpad',
+        name: 'Numpadträning',
+        description: 'Lär dig skriva alla siffror snabbt på det numeriska tangentbordet!',
+        category: 'educational',
+        icon: '🔢',
+        path: './games/numpad/index.html',
+      },
+      {
         id: 'gangertabellen',
         name: 'Gångertabellen',
         description: 'Memorera multiplikationsfakta upp till 10×10 — snabbt och felfritt!',
