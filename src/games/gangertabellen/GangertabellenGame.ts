@@ -34,6 +34,24 @@ export interface GangertabellenConfig {
  */
 const ABANDONED_THRESHOLD_MS = 30_000;
 
+/**
+ * Home-row "virtual numpad" mapping. Lets a player without a real numpad
+ * type digits using the touch-typing right-hand position:
+ *   u i o   →  4 5 6
+ *   j k l   →  1 2 3
+ *   m       →  0
+ * Both the alphabetic key and the actual digit key are accepted.
+ */
+const KEY_TO_DIGIT: Record<string, string> = {
+  m: '0',
+  j: '1',
+  k: '2',
+  l: '3',
+  u: '4',
+  i: '5',
+  o: '6',
+};
+
 /** Color for a fact cell in the heatmap, based on box level + activity. */
 function heatColor(f: FactStat): number {
   if (f.attempts === 0) return 0x3a4750; // unseen — slate
@@ -97,6 +115,11 @@ export class GangertabellenGame extends Phaser.Scene {
   private sessionErrors = 0;
   private sessionTotalMs = 0;
 
+  // Mastery tracking — used to detect the moment the player completes the set.
+  private prevMasteredCount = 0;
+  private celebrating = false;
+  private celebrationGroup?: Phaser.GameObjects.Container;
+
   // Bound handler so we can off() it on shutdown.
   private keyHandler?: (e: KeyboardEvent) => void;
 
@@ -109,6 +132,7 @@ export class GangertabellenGame extends Phaser.Scene {
 
   create(): void {
     this.state = loadState(this.storageKey, this.maxFactor);
+    this.prevMasteredCount = masteredCount(this.state.facts);
 
     this.cameras.main.setBackgroundColor('#2d3436');
 
@@ -253,11 +277,24 @@ export class GangertabellenGame extends Phaser.Scene {
 
   private setupKeyboardInput(): void {
     this.keyHandler = (event: KeyboardEvent): void => {
-      // Only intercept digit input. Let other keys through (e.g., Tab, F-keys).
-      if (event.key.length !== 1 || event.key < '0' || event.key > '9') return;
+      // During the celebration overlay, any key dismisses it.
+      if (this.celebrating) {
+        event.preventDefault();
+        this.dismissCelebration();
+        return;
+      }
+
+      let digit: string | undefined;
+      if (event.key.length === 1 && event.key >= '0' && event.key <= '9') {
+        digit = event.key;
+      } else {
+        digit = KEY_TO_DIGIT[event.key.toLowerCase()];
+      }
+
+      if (digit === undefined) return;
 
       event.preventDefault();
-      this.handleDigit(event.key);
+      this.handleDigit(digit);
     };
 
     this.input.keyboard?.on('keydown', this.keyHandler);
@@ -318,13 +355,24 @@ export class GangertabellenGame extends Phaser.Scene {
 
     saveState(this.state, this.storageKey);
 
+    // Detect the transition where the player just achieved full mastery.
+    const newMastered = masteredCount(this.state.facts);
+    const total = totalFacts(this.maxFactor);
+    const justCompleted = this.prevMasteredCount < total && newMastered === total;
+    this.prevMasteredCount = newMastered;
+
     // Quick green flash on the answer
     this.answerText?.setColor('#27ae60');
     this.time.delayedCall(180, () => {
       this.answerText?.setColor('#f1c40f');
-      this.nextQuestion();
       this.refreshHeatmap();
       this.refreshStats();
+
+      if (justCompleted) {
+        this.showCelebration();
+      } else {
+        this.nextQuestion();
+      }
     });
   }
 
@@ -425,6 +473,71 @@ export class GangertabellenGame extends Phaser.Scene {
     return this.state.facts.find((f) => f.a === lo && f.b === hi);
   }
 
+  private showCelebration(): void {
+    this.celebrating = true;
+    const total = totalFacts(this.maxFactor);
+
+    const overlay = this.add.rectangle(
+      CANVAS_WIDTH / 2,
+      247,
+      CANVAS_WIDTH,
+      495,
+      0x000000,
+      0.78
+    );
+    const title = this.add
+      .text(CANVAS_WIDTH / 2, 170, '🎉 Grattis! 🎉', {
+        fontSize: '52px',
+        color: '#f1c40f',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
+    const msg = this.add
+      .text(CANVAS_WIDTH / 2, 240, `Alla ${total} fakta är bemästrade!`, {
+        fontSize: '24px',
+        color: '#ecf0f1',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
+    const sub = this.add
+      .text(
+        CANVAS_WIDTH / 2,
+        290,
+        'Du har lärt dig hela tabellen — fantastiskt jobbat!',
+        {
+          fontSize: '16px',
+          color: '#bdc3c7',
+          fontStyle: 'italic',
+        }
+      )
+      .setOrigin(0.5);
+    const dismissHint = this.add
+      .text(CANVAS_WIDTH / 2, 350, 'Tryck på valfri tangent för att fortsätta öva', {
+        fontSize: '13px',
+        color: '#7f8c8d',
+      })
+      .setOrigin(0.5);
+
+    this.celebrationGroup = this.add.container(0, 0, [overlay, title, msg, sub, dismissHint]);
+
+    this.tweens.add({
+      targets: title,
+      scale: { from: 0.7, to: 1.05 },
+      duration: 500,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+  }
+
+  private dismissCelebration(): void {
+    if (!this.celebrating) return;
+    this.celebrating = false;
+    this.celebrationGroup?.destroy();
+    this.celebrationGroup = undefined;
+    this.nextQuestion();
+  }
+
   shutdown(): void {
     if (this.keyHandler) {
       this.input.keyboard?.off('keydown', this.keyHandler);
@@ -432,5 +545,8 @@ export class GangertabellenGame extends Phaser.Scene {
     }
     this.tweens.killAll();
     this.time.removeAllEvents();
+    this.celebrationGroup?.destroy();
+    this.celebrationGroup = undefined;
+    this.celebrating = false;
   }
 }
