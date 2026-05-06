@@ -32,6 +32,15 @@ describe('makeAllFacts', () => {
     expect(keys.size).toBe(55);
   });
 
+  it('produces 15 facts for the 1..5 range', () => {
+    const facts = makeAllFacts(5);
+    expect(facts).toHaveLength(15);
+    for (const f of facts) {
+      expect(f.a).toBeLessThanOrEqual(f.b);
+      expect(f.b).toBeLessThanOrEqual(5);
+    }
+  });
+
   it('canonicalizes so a <= b in every fact', () => {
     for (const f of makeAllFacts()) {
       expect(f.a).toBeLessThanOrEqual(f.b);
@@ -223,5 +232,23 @@ describe('persistence', () => {
     localStorage.setItem('gangertabellen-stats-v1', 'not json');
     const loaded = loadState();
     expect(loaded.facts).toHaveLength(55);
+  });
+
+  it('keeps progress for separate storage keys independent', () => {
+    const big = freshState(10);
+    big.facts[0].box = 4;
+    saveState(big, 'gangertabellen-stats-v1');
+
+    const small = freshState(5);
+    small.facts[0].box = 2;
+    saveState(small, 'gangertabellen-liten-stats-v1');
+
+    const loadedBig = loadState('gangertabellen-stats-v1', 10);
+    const loadedSmall = loadState('gangertabellen-liten-stats-v1', 5);
+
+    expect(loadedBig.facts).toHaveLength(55);
+    expect(loadedSmall.facts).toHaveLength(15);
+    expect(loadedBig.facts[0].box).toBe(4);
+    expect(loadedSmall.facts[0].box).toBe(2);
   });
 });

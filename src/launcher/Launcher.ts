@@ -33,6 +33,14 @@ export class Launcher {
         path: './games/numpad/index.html',
       },
       {
+        id: 'gangertabellen-liten',
+        name: 'Lilla gångertabellen',
+        description: 'Tabellerna 1–5 — perfekt för dig som börjar med multiplikation!',
+        category: 'educational',
+        icon: '🌱',
+        path: './games/gangertabellen-liten/index.html',
+      },
+      {
         id: 'gangertabellen',
         name: 'Gångertabellen',
         description: 'Memorera multiplikationsfakta upp till 10×10 — snabbt och felfritt!',

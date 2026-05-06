@@ -1,7 +1,14 @@
 import Phaser from 'phaser';
-import { GangertabellenGame } from './GangertabellenGame';
+import { GangertabellenGame } from '../gangertabellen/GangertabellenGame';
 import '../../common/styles.css';
-import './gangertabellen.css';
+import './gangertabellen-liten.css';
+
+const scene = new GangertabellenGame({
+  sceneKey: 'GangertabellenLitenGame',
+  maxFactor: 5,
+  storageKey: 'gangertabellen-liten-stats-v1',
+  title: '🌱 Lilla gångertabellen',
+});
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -18,7 +25,7 @@ const config: Phaser.Types.Core.GameConfig = {
     pixelArt: false,
     roundPixels: false,
   },
-  scene: new GangertabellenGame(),
+  scene,
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,9 +33,9 @@ document.addEventListener('DOMContentLoaded', () => {
   header.className = 'game-header';
   header.innerHTML = `
     <button class="btn-secondary back-button" id="back-btn">← Tillbaka</button>
-    <h1>✖️ Gångertabellen</h1>
+    <h1>🌱 Lilla gångertabellen</h1>
     <div class="session-display">
-      <span>Tips: använd numeriska tangentbordet</span>
+      <span>Tabeller 1–5 — för dig som börjar</span>
     </div>
   `;
 

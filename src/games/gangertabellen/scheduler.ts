@@ -41,11 +41,16 @@ export function canonicalKey(a: number, b: number): string {
   return `${lo}x${hi}`;
 }
 
-/** Build a fresh array containing all 55 unique facts (1×1..10×10, commutative). */
-export function makeAllFacts(): FactStat[] {
+export const DEFAULT_MAX_FACTOR = 10;
+
+/**
+ * Build a fresh array of all unique facts up to `maxFactor`×`maxFactor`,
+ * collapsing commutative pairs. Default 10 → 55 facts; 5 → 15 facts.
+ */
+export function makeAllFacts(maxFactor: number = DEFAULT_MAX_FACTOR): FactStat[] {
   const facts: FactStat[] = [];
-  for (let a = 1; a <= 10; a++) {
-    for (let b = a; b <= 10; b++) {
+  for (let a = 1; a <= maxFactor; a++) {
+    for (let b = a; b <= maxFactor; b++) {
       facts.push({
         a,
         b,
@@ -61,6 +66,11 @@ export function makeAllFacts(): FactStat[] {
     }
   }
   return facts;
+}
+
+/** Total number of unique facts for a given range. */
+export function totalFacts(maxFactor: number = DEFAULT_MAX_FACTOR): number {
+  return (maxFactor * (maxFactor + 1)) / 2;
 }
 
 export function isMastered(f: FactStat): boolean {
@@ -163,7 +173,7 @@ export function recordAttempt(
   }
 }
 
-const STORAGE_KEY = 'gangertabellen-stats-v1';
+export const DEFAULT_STORAGE_KEY = 'gangertabellen-stats-v1';
 
 export interface PersistedState {
   version: 1;
@@ -172,16 +182,19 @@ export interface PersistedState {
 }
 
 /** Load persisted stats from localStorage, or build a fresh state. */
-export function loadState(): PersistedState {
+export function loadState(
+  storageKey: string = DEFAULT_STORAGE_KEY,
+  maxFactor: number = DEFAULT_MAX_FACTOR
+): PersistedState {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return freshState();
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return freshState(maxFactor);
     const parsed = JSON.parse(raw) as Partial<PersistedState>;
     if (parsed.version !== 1 || !Array.isArray(parsed.facts)) {
-      return freshState();
+      return freshState(maxFactor);
     }
-    // Ensure the saved set covers the full 55 facts (in case the schema grows).
-    const all = makeAllFacts();
+    // Ensure the saved set covers the full fact count (in case the schema grows).
+    const all = makeAllFacts(maxFactor);
     for (const f of parsed.facts) {
       const slot = all.find((x) => x.a === f.a && x.b === f.b);
       if (slot) Object.assign(slot, f);
@@ -192,21 +205,24 @@ export function loadState(): PersistedState {
       sessionsCompleted: parsed.sessionsCompleted ?? 0,
     };
   } catch {
-    return freshState();
+    return freshState(maxFactor);
   }
 }
 
-export function saveState(state: PersistedState): void {
+export function saveState(
+  state: PersistedState,
+  storageKey: string = DEFAULT_STORAGE_KEY
+): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(storageKey, JSON.stringify(state));
   } catch {
     // Storage may be unavailable (private mode, quota). Silent failure is
     // acceptable — the user keeps playing, just without persistence.
   }
 }
 
-export function freshState(): PersistedState {
-  return { version: 1, facts: makeAllFacts(), sessionsCompleted: 0 };
+export function freshState(maxFactor: number = DEFAULT_MAX_FACTOR): PersistedState {
+  return { version: 1, facts: makeAllFacts(maxFactor), sessionsCompleted: 0 };
 }
 
 export function masteredCount(facts: FactStat[]): number {

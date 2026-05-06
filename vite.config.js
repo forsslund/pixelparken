@@ -14,6 +14,7 @@ export default defineConfig({
         tangent: path.resolve(__dirname, 'games/tangent/index.html'),
         numpad: path.resolve(__dirname, 'games/numpad/index.html'),
         gangertabellen: path.resolve(__dirname, 'games/gangertabellen/index.html'),
+        'gangertabellen-liten': path.resolve(__dirname, 'games/gangertabellen-liten/index.html'),
       },
     },
   },

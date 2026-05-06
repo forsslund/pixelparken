@@ -9,10 +9,24 @@ import {
   masteredCount,
   isMastered,
   avgTimeMs,
+  totalFacts,
   MAX_BOX,
+  DEFAULT_MAX_FACTOR,
+  DEFAULT_STORAGE_KEY,
 } from './scheduler';
 
 const CANVAS_WIDTH = 720;
+
+export interface GangertabellenConfig {
+  /** Phaser scene key — must be unique per game instance. */
+  sceneKey?: string;
+  /** Range of factors. 10 → 1×1..10×10. 5 → 1×1..5×5. */
+  maxFactor?: number;
+  /** localStorage namespace. Different keys give independent progress. */
+  storageKey?: string;
+  /** Title shown in the in-canvas header. */
+  title?: string;
+}
 
 /**
  * Attempts longer than this are treated as "user walked away" and are not
@@ -54,6 +68,10 @@ function lerpColor(c1: number, c2: number, t: number): number {
 export class GangertabellenGame extends Phaser.Scene {
   private state: PersistedState = { version: 1, facts: [], sessionsCompleted: 0 };
 
+  protected readonly maxFactor: number;
+  protected readonly storageKey: string;
+  protected readonly title: string;
+
   // Question state
   private currentFact?: FactStat;
   /** Display order — randomly swapped each question, so eleven sees both 4×3 and 3×4. */
@@ -82,12 +100,15 @@ export class GangertabellenGame extends Phaser.Scene {
   // Bound handler so we can off() it on shutdown.
   private keyHandler?: (e: KeyboardEvent) => void;
 
-  constructor() {
-    super({ key: 'GangertabellenGame' });
+  constructor(config: GangertabellenConfig = {}) {
+    super({ key: config.sceneKey ?? 'GangertabellenGame' });
+    this.maxFactor = config.maxFactor ?? DEFAULT_MAX_FACTOR;
+    this.storageKey = config.storageKey ?? DEFAULT_STORAGE_KEY;
+    this.title = config.title ?? '✖️ Gångertabellen';
   }
 
   create(): void {
-    this.state = loadState();
+    this.state = loadState(this.storageKey, this.maxFactor);
 
     this.cameras.main.setBackgroundColor('#2d3436');
 
@@ -107,7 +128,7 @@ export class GangertabellenGame extends Phaser.Scene {
     headerBg.setStrokeStyle(2, 0x7f8c8d);
 
     this.add
-      .text(CANVAS_WIDTH / 2, 30, '✖️ Gångertabellen', {
+      .text(CANVAS_WIDTH / 2, 30, this.title, {
         fontSize: '22px',
         color: '#ecf0f1',
         fontStyle: 'bold',
@@ -168,43 +189,49 @@ export class GangertabellenGame extends Phaser.Scene {
   }
 
   private createHeatmap(): void {
-    // 10×10 grid of cells; only show the upper triangle since the matrix is
-    // symmetric and we treat (a,b) and (b,a) as one fact. We render both
-    // halves visually anyway to make the table familiar — they share state.
-    const startX = 430;
-    const startY = 95;
-    const cellSize = 28;
+    // n×n grid of cells; we treat (a,b) and (b,a) as one fact internally but
+    // render both halves so the table looks like the familiar multiplication
+    // matrix. Cell size scales up for smaller factor ranges so the panel
+    // occupies roughly the same screen real-estate.
+    const n = this.maxFactor;
+    const cellSize = n <= 5 ? 44 : n <= 7 ? 36 : 28;
     const gap = 2;
+    const fontSize = n <= 5 ? '16px' : n <= 7 ? '14px' : '12px';
+    const labelFontSize = n <= 5 ? '13px' : '11px';
+    const startY = 95;
+    // Center the grid in the right portion of the canvas (around x=570).
+    const gridSpan = (n - 1) * (cellSize + gap);
+    const startX = 570 - gridSpan / 2;
 
     // Header row (factor b labels)
-    for (let b = 1; b <= 10; b++) {
+    for (let b = 1; b <= n; b++) {
       this.add
-        .text(startX + (b - 1) * (cellSize + gap) + cellSize / 2, startY - 14, String(b), {
-          fontSize: '11px',
+        .text(startX + (b - 1) * (cellSize + gap), startY - 14, String(b), {
+          fontSize: labelFontSize,
           color: '#7f8c8d',
         })
         .setOrigin(0.5);
     }
     // Header column (factor a labels)
-    for (let a = 1; a <= 10; a++) {
+    for (let a = 1; a <= n; a++) {
       this.add
-        .text(startX - 14, startY + (a - 1) * (cellSize + gap) + cellSize / 2, String(a), {
-          fontSize: '11px',
+        .text(startX - cellSize / 2 - 8, startY + (a - 1) * (cellSize + gap), String(a), {
+          fontSize: labelFontSize,
           color: '#7f8c8d',
         })
         .setOrigin(0.5);
     }
 
-    for (let a = 1; a <= 10; a++) {
-      for (let b = 1; b <= 10; b++) {
-        const x = startX + (b - 1) * (cellSize + gap) + cellSize / 2;
-        const y = startY + (a - 1) * (cellSize + gap) + cellSize / 2;
+    for (let a = 1; a <= n; a++) {
+      for (let b = 1; b <= n; b++) {
+        const x = startX + (b - 1) * (cellSize + gap);
+        const y = startY + (a - 1) * (cellSize + gap);
 
         const rect = this.add.rectangle(x, y, cellSize, cellSize, 0x3a4750);
         rect.setStrokeStyle(1, 0x2d3436);
         const label = this.add
           .text(x, y, String(a * b), {
-            fontSize: '12px',
+            fontSize,
             color: '#ecf0f1',
           })
           .setOrigin(0.5);
@@ -216,7 +243,7 @@ export class GangertabellenGame extends Phaser.Scene {
 
     // Legend
     this.add
-      .text(startX + 5 * (cellSize + gap), startY + 10 * (cellSize + gap) + 14, 'Bemästringsnivå', {
+      .text(startX + gridSpan / 2, startY + gridSpan + cellSize / 2 + 14, 'Bemästringsnivå', {
         fontSize: '11px',
         color: '#7f8c8d',
         fontStyle: 'italic',
@@ -289,7 +316,7 @@ export class GangertabellenGame extends Phaser.Scene {
     this.sessionErrors += this.errorsThisAttempt;
     this.sessionTotalMs += responseTimeMs;
 
-    saveState(this.state);
+    saveState(this.state, this.storageKey);
 
     // Quick green flash on the answer
     this.answerText?.setColor('#27ae60');
@@ -345,12 +372,14 @@ export class GangertabellenGame extends Phaser.Scene {
 
     const mastered = masteredCount(this.state.facts);
     const totalAttempts = this.state.facts.reduce((s, f) => s + f.attempts, 0);
-    this.masteryText.setText(`Bemästrade: ${mastered}/55  |  totalt svar: ${totalAttempts}`);
+    this.masteryText.setText(
+      `Bemästrade: ${mastered}/${totalFacts(this.maxFactor)}  |  totalt svar: ${totalAttempts}`
+    );
   }
 
   private refreshHeatmap(): void {
-    for (let a = 1; a <= 10; a++) {
-      for (let b = 1; b <= 10; b++) {
+    for (let a = 1; a <= this.maxFactor; a++) {
+      for (let b = 1; b <= this.maxFactor; b++) {
         const fact = this.findFact(a, b);
         if (!fact) continue;
 
