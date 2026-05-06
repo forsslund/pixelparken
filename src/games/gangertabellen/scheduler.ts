@@ -73,6 +73,37 @@ export function totalFacts(maxFactor: number = DEFAULT_MAX_FACTOR): number {
   return (maxFactor * (maxFactor + 1)) / 2;
 }
 
+/**
+ * Build a fresh array of unique addition facts where the sum stays within
+ * `maxSum`. Commutative pairs are collapsed (a ≤ b). When `includeZero` is
+ * false, both factors are at least 1 — the default for first-graders, where
+ * "0+x" facts feel trivial rather than instructive.
+ */
+export function makeAdditionFacts(maxSum: number = 10, includeZero: boolean = false): FactStat[] {
+  const min = includeZero ? 0 : 1;
+  const facts: FactStat[] = [];
+  for (let a = min; a <= maxSum; a++) {
+    for (let b = a; a + b <= maxSum; b++) {
+      facts.push({
+        a,
+        b,
+        attempts: 0,
+        errorAttempts: 0,
+        errorKeystrokes: 0,
+        totalTimeMs: 0,
+        lastTimeMs: 0,
+        bestTimeMs: 0,
+        box: 0,
+        lastSeen: 0,
+      });
+    }
+  }
+  return facts;
+}
+
+/** A function that produces the canonical fact set for a game variant. */
+export type FactBuilder = () => FactStat[];
+
 export function isMastered(f: FactStat): boolean {
   return f.box >= MASTERY_BOX;
 }
@@ -184,17 +215,18 @@ export interface PersistedState {
 /** Load persisted stats from localStorage, or build a fresh state. */
 export function loadState(
   storageKey: string = DEFAULT_STORAGE_KEY,
-  maxFactor: number = DEFAULT_MAX_FACTOR
+  builderOrMaxFactor: FactBuilder | number = DEFAULT_MAX_FACTOR
 ): PersistedState {
+  const builder = resolveBuilder(builderOrMaxFactor);
   try {
     const raw = localStorage.getItem(storageKey);
-    if (!raw) return freshState(maxFactor);
+    if (!raw) return freshState(builder);
     const parsed = JSON.parse(raw) as Partial<PersistedState>;
     if (parsed.version !== 1 || !Array.isArray(parsed.facts)) {
-      return freshState(maxFactor);
+      return freshState(builder);
     }
-    // Ensure the saved set covers the full fact count (in case the schema grows).
-    const all = makeAllFacts(maxFactor);
+    // Ensure the saved set covers the canonical fact list (handles schema growth).
+    const all = builder();
     for (const f of parsed.facts) {
       const slot = all.find((x) => x.a === f.a && x.b === f.b);
       if (slot) Object.assign(slot, f);
@@ -205,8 +237,12 @@ export function loadState(
       sessionsCompleted: parsed.sessionsCompleted ?? 0,
     };
   } catch {
-    return freshState(maxFactor);
+    return freshState(builder);
   }
+}
+
+function resolveBuilder(value: FactBuilder | number): FactBuilder {
+  return typeof value === 'number' ? (): FactStat[] => makeAllFacts(value) : value;
 }
 
 export function saveState(
@@ -221,8 +257,11 @@ export function saveState(
   }
 }
 
-export function freshState(maxFactor: number = DEFAULT_MAX_FACTOR): PersistedState {
-  return { version: 1, facts: makeAllFacts(maxFactor), sessionsCompleted: 0 };
+export function freshState(
+  builderOrMaxFactor: FactBuilder | number = DEFAULT_MAX_FACTOR
+): PersistedState {
+  const builder = resolveBuilder(builderOrMaxFactor);
+  return { version: 1, facts: builder(), sessionsCompleted: 0 };
 }
 
 export function masteredCount(facts: FactStat[]): number {

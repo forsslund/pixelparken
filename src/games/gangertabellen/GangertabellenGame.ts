@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {
   type FactStat,
+  type FactBuilder,
   type PersistedState,
   loadState,
   saveState,
@@ -9,7 +10,7 @@ import {
   masteredCount,
   isMastered,
   avgTimeMs,
-  totalFacts,
+  makeAllFacts,
   MAX_BOX,
   DEFAULT_MAX_FACTOR,
   DEFAULT_STORAGE_KEY,
@@ -17,15 +18,38 @@ import {
 
 const CANVAS_WIDTH = 720;
 
+export type Operation = 'multiply' | 'add';
+
+/**
+ * Describes which cells of the matrix heatmap exist. Multiplication uses a
+ * full square (1..n × 1..n). Addition uses a triangle (a+b ≤ maxSum).
+ */
+export interface GridLayout {
+  rowMin: number;
+  rowMax: number;
+  colMin: number;
+  colMax: number;
+  cellExists: (a: number, b: number) => boolean;
+}
+
 export interface GangertabellenConfig {
   /** Phaser scene key — must be unique per game instance. */
   sceneKey?: string;
-  /** Range of factors. 10 → 1×1..10×10. 5 → 1×1..5×5. */
+  /**
+   * Convenience for multiplication mode: 10 → 1×1..10×10, 5 → 1×1..5×5.
+   * Ignored if `factBuilder` or `gridLayout` is set explicitly.
+   */
   maxFactor?: number;
   /** localStorage namespace. Different keys give independent progress. */
   storageKey?: string;
   /** Title shown in the in-canvas header. */
   title?: string;
+  /** What math is being practiced. Default: 'multiply'. */
+  operation?: Operation;
+  /** Override the canonical fact set. */
+  factBuilder?: FactBuilder;
+  /** Override the heatmap matrix layout. */
+  gridLayout?: GridLayout;
 }
 
 /**
@@ -86,9 +110,11 @@ function lerpColor(c1: number, c2: number, t: number): number {
 export class GangertabellenGame extends Phaser.Scene {
   private state: PersistedState = { version: 1, facts: [], sessionsCompleted: 0 };
 
-  protected readonly maxFactor: number;
   protected readonly storageKey: string;
   protected readonly title: string;
+  protected readonly operation: Operation;
+  protected readonly factBuilder: FactBuilder;
+  protected readonly gridLayout: GridLayout;
 
   // Question state
   private currentFact?: FactStat;
@@ -125,13 +151,32 @@ export class GangertabellenGame extends Phaser.Scene {
 
   constructor(config: GangertabellenConfig = {}) {
     super({ key: config.sceneKey ?? 'GangertabellenGame' });
-    this.maxFactor = config.maxFactor ?? DEFAULT_MAX_FACTOR;
+    const maxFactor = config.maxFactor ?? DEFAULT_MAX_FACTOR;
     this.storageKey = config.storageKey ?? DEFAULT_STORAGE_KEY;
     this.title = config.title ?? '✖️ Gångertabellen';
+    this.operation = config.operation ?? 'multiply';
+    this.factBuilder = config.factBuilder ?? ((): FactStat[] => makeAllFacts(maxFactor));
+    this.gridLayout = config.gridLayout ?? {
+      rowMin: 1,
+      rowMax: maxFactor,
+      colMin: 1,
+      colMax: maxFactor,
+      cellExists: (): boolean => true,
+    };
+  }
+
+  /** Symbol shown in the question and used in the cell-label fallback. */
+  protected get operationSymbol(): string {
+    return this.operation === 'add' ? '+' : '×';
+  }
+
+  /** The arithmetic answer for a given fact, depending on the active operation. */
+  protected computeAnswer(a: number, b: number): number {
+    return this.operation === 'add' ? a + b : a * b;
   }
 
   create(): void {
-    this.state = loadState(this.storageKey, this.maxFactor);
+    this.state = loadState(this.storageKey, this.factBuilder);
     this.prevMasteredCount = masteredCount(this.state.facts);
 
     this.cameras.main.setBackgroundColor('#2d3436');
@@ -213,48 +258,53 @@ export class GangertabellenGame extends Phaser.Scene {
   }
 
   private createHeatmap(): void {
-    // n×n grid of cells; we treat (a,b) and (b,a) as one fact internally but
-    // render both halves so the table looks like the familiar multiplication
-    // matrix. Cell size scales up for smaller factor ranges so the panel
-    // occupies roughly the same screen real-estate.
-    const n = this.maxFactor;
-    const cellSize = n <= 5 ? 44 : n <= 7 ? 36 : 28;
+    // Render the heatmap as a row×col matrix according to gridLayout. Cells
+    // where cellExists() returns false are skipped — that's how the addition
+    // variant renders a triangular shape (a+b ≤ maxSum).
+    const { rowMin, rowMax, colMin, colMax, cellExists } = this.gridLayout;
+    const rows = rowMax - rowMin + 1;
+    const cols = colMax - colMin + 1;
+    const n = Math.max(rows, cols);
+
+    const cellSize = n <= 5 ? 44 : n <= 7 ? 36 : n <= 9 ? 30 : n <= 10 ? 28 : 24;
     const gap = 2;
-    const fontSize = n <= 5 ? '16px' : n <= 7 ? '14px' : '12px';
+    const fontSize = n <= 5 ? '16px' : n <= 7 ? '14px' : n <= 10 ? '12px' : '10px';
     const labelFontSize = n <= 5 ? '13px' : '11px';
     const startY = 95;
-    // Center the grid in the right portion of the canvas (around x=570).
-    const gridSpan = (n - 1) * (cellSize + gap);
-    const startX = 570 - gridSpan / 2;
+    // Center the grid horizontally in the right portion of the canvas.
+    const gridSpanX = (cols - 1) * (cellSize + gap);
+    const startX = 570 - gridSpanX / 2;
+    const gridSpanY = (rows - 1) * (cellSize + gap);
 
-    // Header row (factor b labels)
-    for (let b = 1; b <= n; b++) {
+    // Header row (column labels: b)
+    for (let b = colMin; b <= colMax; b++) {
       this.add
-        .text(startX + (b - 1) * (cellSize + gap), startY - 14, String(b), {
+        .text(startX + (b - colMin) * (cellSize + gap), startY - 14, String(b), {
           fontSize: labelFontSize,
           color: '#7f8c8d',
         })
         .setOrigin(0.5);
     }
-    // Header column (factor a labels)
-    for (let a = 1; a <= n; a++) {
+    // Header column (row labels: a)
+    for (let a = rowMin; a <= rowMax; a++) {
       this.add
-        .text(startX - cellSize / 2 - 8, startY + (a - 1) * (cellSize + gap), String(a), {
+        .text(startX - cellSize / 2 - 8, startY + (a - rowMin) * (cellSize + gap), String(a), {
           fontSize: labelFontSize,
           color: '#7f8c8d',
         })
         .setOrigin(0.5);
     }
 
-    for (let a = 1; a <= n; a++) {
-      for (let b = 1; b <= n; b++) {
-        const x = startX + (b - 1) * (cellSize + gap);
-        const y = startY + (a - 1) * (cellSize + gap);
+    for (let a = rowMin; a <= rowMax; a++) {
+      for (let b = colMin; b <= colMax; b++) {
+        if (!cellExists(a, b)) continue;
+        const x = startX + (b - colMin) * (cellSize + gap);
+        const y = startY + (a - rowMin) * (cellSize + gap);
 
         const rect = this.add.rectangle(x, y, cellSize, cellSize, 0x3a4750);
         rect.setStrokeStyle(1, 0x2d3436);
         const label = this.add
-          .text(x, y, String(a * b), {
+          .text(x, y, String(this.computeAnswer(a, b)), {
             fontSize,
             color: '#ecf0f1',
           })
@@ -267,7 +317,7 @@ export class GangertabellenGame extends Phaser.Scene {
 
     // Legend
     this.add
-      .text(startX + gridSpan / 2, startY + gridSpan + cellSize / 2 + 14, 'Bemästringsnivå', {
+      .text(startX + gridSpanX / 2, startY + gridSpanY + cellSize / 2 + 14, 'Bemästringsnivå', {
         fontSize: '11px',
         color: '#7f8c8d',
         fontStyle: 'italic',
@@ -357,7 +407,7 @@ export class GangertabellenGame extends Phaser.Scene {
 
     // Detect the transition where the player just achieved full mastery.
     const newMastered = masteredCount(this.state.facts);
-    const total = totalFacts(this.maxFactor);
+    const total = this.state.facts.length;
     const justCompleted = this.prevMasteredCount < total && newMastered === total;
     this.prevMasteredCount = newMastered;
 
@@ -389,12 +439,14 @@ export class GangertabellenGame extends Phaser.Scene {
       this.displayB = fact.a;
     }
 
-    this.expectedAnswer = String(fact.a * fact.b);
+    this.expectedAnswer = String(this.computeAnswer(fact.a, fact.b));
     this.typedAnswer = '';
     this.errorsThisAttempt = 0;
     this.questionStartMs = performance.now();
 
-    this.questionText?.setText(`${this.displayA} × ${this.displayB} = ?`);
+    this.questionText?.setText(
+      `${this.displayA} ${this.operationSymbol} ${this.displayB} = ?`
+    );
     this.refreshAnswerDisplay(true);
   }
 
@@ -421,13 +473,15 @@ export class GangertabellenGame extends Phaser.Scene {
     const mastered = masteredCount(this.state.facts);
     const totalAttempts = this.state.facts.reduce((s, f) => s + f.attempts, 0);
     this.masteryText.setText(
-      `Bemästrade: ${mastered}/${totalFacts(this.maxFactor)}  |  totalt svar: ${totalAttempts}`
+      `Bemästrade: ${mastered}/${this.state.facts.length}  |  totalt svar: ${totalAttempts}`
     );
   }
 
   private refreshHeatmap(): void {
-    for (let a = 1; a <= this.maxFactor; a++) {
-      for (let b = 1; b <= this.maxFactor; b++) {
+    const { rowMin, rowMax, colMin, colMax, cellExists } = this.gridLayout;
+    for (let a = rowMin; a <= rowMax; a++) {
+      for (let b = colMin; b <= colMax; b++) {
+        if (!cellExists(a, b)) continue;
         const fact = this.findFact(a, b);
         if (!fact) continue;
 
@@ -452,17 +506,17 @@ export class GangertabellenGame extends Phaser.Scene {
         if (label) {
           const mastered = isMastered(fact);
           label.setColor(mastered || fact.attempts === 0 ? '#ecf0f1' : '#000000');
-          label.setText(fact.attempts === 0 ? `${a * b}` : this.cellLabelFor(fact));
+          label.setText(this.cellLabelFor(fact, a, b));
         }
       }
     }
   }
 
-  private cellLabelFor(fact: FactStat): string {
-    // For seen facts the cell shows the avg response time in seconds (no unit
-    // suffix — the column is uniformly times). Unseen facts show the product
-    // so the table doubles as a reference.
-    if (fact.attempts === 0) return String(fact.a * fact.b);
+  private cellLabelFor(fact: FactStat, a: number, b: number): string {
+    // For seen facts the cell shows the avg response time in seconds. Unseen
+    // facts show the answer (product or sum) so the table doubles as a
+    // reference.
+    if (fact.attempts === 0) return String(this.computeAnswer(a, b));
     const avg = avgTimeMs(fact);
     return (avg / 1000).toFixed(1);
   }
@@ -475,7 +529,7 @@ export class GangertabellenGame extends Phaser.Scene {
 
   private showCelebration(): void {
     this.celebrating = true;
-    const total = totalFacts(this.maxFactor);
+    const total = this.state.facts.length;
 
     const overlay = this.add.rectangle(
       CANVAS_WIDTH / 2,

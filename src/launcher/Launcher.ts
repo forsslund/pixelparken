@@ -33,6 +33,14 @@ export class Launcher {
         path: './games/numpad/index.html',
       },
       {
+        id: 'lilla-plusspelet',
+        name: 'Lilla plusspelet',
+        description: 'Plusräkning där svaret blir upp till 10 — för dig som är 4–5 år!',
+        category: 'educational',
+        icon: '➕',
+        path: './games/lilla-plusspelet/index.html',
+      },
+      {
         id: 'gangertabellen-liten',
         name: 'Lilla gångertabellen',
         description: 'Tabellerna 1–5 — perfekt för dig som börjar med multiplikation!',

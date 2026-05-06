@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import {
   canonicalKey,
   makeAllFacts,
+  makeAdditionFacts,
   factWeight,
   selectNextFact,
   recordAttempt,
@@ -57,6 +58,32 @@ describe('makeAllFacts', () => {
       expect(f.totalTimeMs).toBe(0);
       expect(f.box).toBe(0);
       expect(f.lastSeen).toBe(0);
+    }
+  });
+});
+
+describe('makeAdditionFacts', () => {
+  it('produces 25 facts for sum<=10 without zero', () => {
+    const facts = makeAdditionFacts(10, false);
+    expect(facts).toHaveLength(25);
+    for (const f of facts) {
+      expect(f.a).toBeGreaterThanOrEqual(1);
+      expect(f.b).toBeGreaterThanOrEqual(f.a);
+      expect(f.a + f.b).toBeLessThanOrEqual(10);
+    }
+  });
+
+  it('includes zero facts when includeZero is true', () => {
+    const facts = makeAdditionFacts(10, true);
+    // Zero rows: 0+0..0+10 → 11 extra facts
+    expect(facts).toHaveLength(36);
+    expect(facts.some((f) => f.a === 0 && f.b === 0)).toBe(true);
+    expect(facts.some((f) => f.a === 0 && f.b === 10)).toBe(true);
+  });
+
+  it('canonicalizes so a <= b', () => {
+    for (const f of makeAdditionFacts(10, false)) {
+      expect(f.a).toBeLessThanOrEqual(f.b);
     }
   });
 });
